@@ -380,8 +380,8 @@
         altitude = Math.max(0, altitude - FALL_SPEED * 5);
 
         // Tilt player based on movement
-        player.rotation.z = -moveX * 0.3;
-        player.rotation.x = moveZ * 0.2;
+        player.rotation.z = -moveX * 0.6;
+        player.rotation.x = moveZ * 0.4;
 
         // Update camera to follow player
         camera.position.x = player.position.x;
@@ -407,7 +407,7 @@
 
           // Check collision with player
           const distance = player.position.distanceTo(orb.position);
-          if (distance < 5) {
+          if (distance < 20) {
             collectOrb(orb, index);
           }
         });
