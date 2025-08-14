@@ -1,535 +1,542 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Skydiving Orb Collector</title>
-    <script 
-src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 60%, 
-#228B22 100%);
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: "Arial", sans-serif;
+        background: linear-gradient(
+          180deg,
+          #87ceeb 0%,
+          #87ceeb 60%,
+          #228b22 100%
+        );
+      }
+
+      #gameContainer {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      #ui {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 100;
+        color: white;
+        font-size: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+      }
+
+      #instructions {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        text-align: center;
+        z-index: 200;
+        max-width: 400px;
+      }
+
+      #startButton {
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+        border: none;
+        color: white;
+        padding: 15px 30px;
+        font-size: 18px;
+        border-radius: 30px;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: transform 0.2s;
+      }
+
+      #startButton:hover {
+        transform: scale(1.05);
+      }
+
+      #gameOver {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 40px;
+        border-radius: 15px;
+        text-align: center;
+        z-index: 200;
+        display: none;
+      }
+
+      .pulse {
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
         }
-        
-        #gameContainer {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
+        50% {
+          opacity: 0.7;
         }
-        
-        #ui {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 100;
-            color: white;
-            font-size: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        100% {
+          opacity: 1;
         }
-        
-        #instructions {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            z-index: 200;
-            max-width: 400px;
-        }
-        
-        #startButton {
-            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
-            border: none;
-            color: white;
-            padding: 15px 30px;
-            font-size: 18px;
-            border-radius: 30px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: transform 0.2s;
-        }
-        
-        #startButton:hover {
-            transform: scale(1.05);
-        }
-        
-        #gameOver {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.9);
-            color: white;
-            padding: 40px;
-            border-radius: 15px;
-            text-align: center;
-            z-index: 200;
-            display: none;
-        }
-        
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-        
-        #altitude {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            font-size: 18px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-        }
+      }
+
+      #altitude {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        color: white;
+        font-size: 18px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div id="gameContainer">
-        <div id="ui">
-            <div>Score: <span id="score">0</span></div>
-            <div>Speed: <span id="speed">0</span> mph</div>
-        </div>
-        
-        <div id="altitude">
-            Altitude: <span id="altitudeValue">10000</span> ft
-        </div>
-        
-        <div id="instructions">
-            <h2>🪂 Sky Orb Collector</h2>
-            <p>Tilt your device to steer through the sky!</p>
-            <p>Collect glowing orbs while falling</p>
-            <p><strong>Desktop:</strong> Use WASD or Arrow Keys</p>
-            <p><strong>Mobile:</strong> Tilt your device</p>
-            <button id="startButton">Start Skydiving!</button>
-        </div>
-        
-        <div id="gameOver">
-            <h2>Mission Complete!</h2>
-            <p>Final Score: <span id="finalScore">0</span></p>
-            <p>Orbs Collected: <span id="orbsCollected">0</span></p>
-            <button id="restartButton" onclick="restartGame()">Jump 
-Again!</button>
-        </div>
+      <div id="ui">
+        <div>Score: <span id="score">0</span></div>
+        <div>Speed: <span id="speed">0</span> mph</div>
+      </div>
+
+      <div id="altitude">
+        Altitude: <span id="altitudeValue">10000</span> ft
+      </div>
+
+      <div id="instructions">
+        <h2>🪂 Sky Orb Collector</h2>
+        <p>Tilt your device to steer through the sky!</p>
+        <p>Collect glowing orbs while falling</p>
+        <p><strong>Desktop:</strong> Use WASD or Arrow Keys</p>
+        <p><strong>Mobile:</strong> Tilt your device</p>
+        <button id="startButton">Start Skydiving!</button>
+      </div>
+
+      <div id="gameOver">
+        <h2>Mission Complete!</h2>
+        <p>Final Score: <span id="finalScore">0</span></p>
+        <p>Orbs Collected: <span id="orbsCollected">0</span></p>
+        <button id="restartButton" onclick="restartGame()">Jump Again!</button>
+      </div>
     </div>
 
     <script>
-        let scene, camera, renderer, player;
-        let orbs = [];
-        let clouds = [];
-        let gameStarted = false;
-        let score = 0;
-        let altitude = 10000;
-        let speed = 120;
-        let orbsCollectedCount = 0;
-        
-        // Device orientation data
-        let deviceOrientation = { beta: 0, gamma: 0 };
-        let orientationSupported = false;
-        
+      let scene, camera, renderer, player;
+      let orbs = [];
+      let clouds = [];
+      let gameStarted = false;
+      let score = 0;
+      let altitude = 10000;
+      let speed = 120;
+      let orbsCollectedCount = 0;
+
+      // Device orientation data
+      let deviceOrientation = { beta: 0, gamma: 0 };
+      let orientationSupported = false;
+
+      // Keyboard controls
+      let keys = {};
+
+      // Game settings
+      const FALL_SPEED = 2;
+      const ORB_COUNT = 50;
+      const CLOUD_COUNT = 20;
+      const GAME_HEIGHT = 10000;
+
+      function init() {
+        // Create scene
+        scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0x87ceeb, 100, 2000);
+
+        // Create camera
+        camera = new THREE.PerspectiveCamera(
+          75,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          3000
+        );
+        camera.position.set(0, 0, 5);
+
+        // Create renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x87ceeb, 1);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        document
+          .getElementById("gameContainer")
+          .appendChild(renderer.domElement);
+
+        // Create lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(100, 100, 50);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
+        scene.add(directionalLight);
+
+        // Create player (skydiver)
+        createPlayer();
+
+        // Create orbs
+        createOrbs();
+
+        // Create clouds
+        createClouds();
+
+        // Setup controls
+        setupControls();
+
+        // Setup device orientation
+        setupDeviceOrientation();
+
+        // Start button event
+
+        document
+          .getElementById("startButton")
+          .addEventListener("click", startGame);
+
+        // Window resize handler
+        window.addEventListener("resize", onWindowResize);
+      }
+
+      function createPlayer() {
+        const playerGeometry = new THREE.ConeGeometry(0.5, 2, 8);
+        const playerMaterial = new THREE.MeshLambertMaterial({
+          color: 0xff6b6b,
+        });
+        player = new THREE.Mesh(playerGeometry, playerMaterial);
+        player.position.set(0, 0, 0);
+        player.castShadow = true;
+        scene.add(player);
+
+        // Add parachute cord effect
+        const cordGeometry = new THREE.CylinderGeometry(0.02, 0.02, 3, 8);
+        const cordMaterial = new THREE.MeshLambertMaterial({ color: 0x8b4513 });
+        const cord = new THREE.Mesh(cordGeometry, cordMaterial);
+        cord.position.set(0, 1.5, 0);
+        player.add(cord);
+      }
+
+      function createOrbs() {
+        for (let i = 0; i < ORB_COUNT; i++) {
+          const orbGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+          const hue = Math.random();
+          const orbMaterial = new THREE.MeshLambertMaterial({
+            color: new THREE.Color().setHSL(hue, 1, 0.5),
+            transparent: true,
+            opacity: 0.8,
+          });
+
+          const orb = new THREE.Mesh(orbGeometry, orbMaterial);
+
+          // Random position in the sky
+          orb.position.set(
+            (Math.random() - 0.5) * 200,
+            Math.random() * GAME_HEIGHT - GAME_HEIGHT / 2,
+            (Math.random() - 0.5) * 200
+          );
+
+          orb.userData = {
+            originalY: orb.position.y,
+            rotationSpeed: Math.random() * 0.05 + 0.02,
+            collected: false,
+            points: Math.floor(Math.random() * 50) + 10,
+          };
+
+          orbs.push(orb);
+          scene.add(orb);
+        }
+      }
+
+      function createClouds() {
+        for (let i = 0; i < CLOUD_COUNT; i++) {
+          const cloud = new THREE.Group();
+
+          // Create cloud puffs
+          for (let j = 0; j < 5; j++) {
+            const puffGeometry = new THREE.SphereGeometry(
+              Math.random() * 10 + 5,
+              8,
+              8
+            );
+            const puffMaterial = new THREE.MeshLambertMaterial({
+              color: 0xffffff,
+              transparent: true,
+              opacity: 0.7,
+            });
+            const puff = new THREE.Mesh(puffGeometry, puffMaterial);
+
+            puff.position.set(
+              (Math.random() - 0.5) * 20,
+              (Math.random() - 0.5) * 5,
+              (Math.random() - 0.5) * 20
+            );
+
+            cloud.add(puff);
+          }
+
+          cloud.position.set(
+            (Math.random() - 0.5) * 300,
+            Math.random() * GAME_HEIGHT - GAME_HEIGHT / 2,
+            (Math.random() - 0.5) * 300
+          );
+
+          clouds.push(cloud);
+          scene.add(cloud);
+        }
+      }
+
+      function setupControls() {
         // Keyboard controls
-        let keys = {};
-        
-        // Game settings
-        const FALL_SPEED = 2;
-        const ORB_COUNT = 50;
-        const CLOUD_COUNT = 20;
-        const GAME_HEIGHT = 10000;
-        
-        function init() {
-            // Create scene
-            scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0x87CEEB, 100, 2000);
-            
-            // Create camera
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / 
-window.innerHeight, 0.1, 3000);
-            camera.position.set(0, 0, 5);
-            
-            // Create renderer
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: 
-true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setClearColor(0x87CEEB, 1);
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            
-document.getElementById('gameContainer').appendChild(renderer.domElement);
-            
-            // Create lighting
-            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
-            scene.add(ambientLight);
-            
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 
-1);
-            directionalLight.position.set(100, 100, 50);
-            directionalLight.castShadow = true;
-            directionalLight.shadow.mapSize.width = 2048;
-            directionalLight.shadow.mapSize.height = 2048;
-            scene.add(directionalLight);
-            
-            // Create player (skydiver)
-            createPlayer();
-            
-            // Create orbs
-            createOrbs();
-            
-            // Create clouds
-            createClouds();
-            
-            // Setup controls
-            setupControls();
-            
-            // Setup device orientation
-            setupDeviceOrientation();
-            
-            // Start button event
-            
-document.getElementById('startButton').addEventListener('click', 
-startGame);
-            
-            // Window resize handler
-            window.addEventListener('resize', onWindowResize);
-        }
-        
-        function createPlayer() {
-            const playerGeometry = new THREE.ConeGeometry(0.5, 2, 8);
-            const playerMaterial = new THREE.MeshLambertMaterial({ color: 
-0xFF6B6B });
-            player = new THREE.Mesh(playerGeometry, playerMaterial);
-            player.position.set(0, 0, 0);
-            player.castShadow = true;
-            scene.add(player);
-            
-            // Add parachute cord effect
-            const cordGeometry = new THREE.CylinderGeometry(0.02, 0.02, 3, 
-8);
-            const cordMaterial = new THREE.MeshLambertMaterial({ color: 
-0x8B4513 });
-            const cord = new THREE.Mesh(cordGeometry, cordMaterial);
-            cord.position.set(0, 1.5, 0);
-            player.add(cord);
-        }
-        
-        function createOrbs() {
-            for (let i = 0; i < ORB_COUNT; i++) {
-                const orbGeometry = new THREE.SphereGeometry(0.3, 16, 16);
-                const hue = Math.random();
-                const orbMaterial = new THREE.MeshLambertMaterial({ 
-                    color: new THREE.Color().setHSL(hue, 1, 0.5),
-                    transparent: true,
-                    opacity: 0.8
-                });
-                
-                const orb = new THREE.Mesh(orbGeometry, orbMaterial);
-                
-                // Random position in the sky
-                orb.position.set(
-                    (Math.random() - 0.5) * 200,
-                    Math.random() * GAME_HEIGHT - GAME_HEIGHT / 2,
-                    (Math.random() - 0.5) * 200
-                );
-                
-                orb.userData = { 
-                    originalY: orb.position.y,
-                    rotationSpeed: Math.random() * 0.05 + 0.02,
-                    collected: false,
-                    points: Math.floor(Math.random() * 50) + 10
-                };
-                
-                orbs.push(orb);
-                scene.add(orb);
+        document.addEventListener("keydown", (event) => {
+          keys[event.code] = true;
+        });
+
+        document.addEventListener("keyup", (event) => {
+          keys[event.code] = false;
+        });
+      }
+
+      function setupDeviceOrientation() {
+        if (
+          typeof DeviceOrientationEvent !== "undefined" &&
+          typeof DeviceOrientationEvent.requestPermission === "function"
+        ) {
+          // iOS 13+ permission request
+          DeviceOrientationEvent.requestPermission().then((response) => {
+            if (response == "granted") {
+              enableOrientationControls();
             }
+          });
+        } else if (window.DeviceOrientationEvent) {
+          // Other devices
+          enableOrientationControls();
         }
-        
-        function createClouds() {
-            for (let i = 0; i < CLOUD_COUNT; i++) {
-                const cloud = new THREE.Group();
-                
-                // Create cloud puffs
-                for (let j = 0; j < 5; j++) {
-                    const puffGeometry = new THREE.SphereGeometry(
-                        Math.random() * 10 + 5, 8, 8
-                    );
-                    const puffMaterial = new THREE.MeshLambertMaterial({ 
-                        color: 0xFFFFFF,
-                        transparent: true,
-                        opacity: 0.7
-                    });
-                    const puff = new THREE.Mesh(puffGeometry, 
-puffMaterial);
-                    
-                    puff.position.set(
-                        (Math.random() - 0.5) * 20,
-                        (Math.random() - 0.5) * 5,
-                        (Math.random() - 0.5) * 20
-                    );
-                    
-                    cloud.add(puff);
-                }
-                
-                cloud.position.set(
-                    (Math.random() - 0.5) * 300,
-                    Math.random() * GAME_HEIGHT - GAME_HEIGHT / 2,
-                    (Math.random() - 0.5) * 300
-                );
-                
-                clouds.push(cloud);
-                scene.add(cloud);
-            }
+      }
+
+      function enableOrientationControls() {
+        orientationSupported = true;
+        window.addEventListener("deviceorientation", (event) => {
+          deviceOrientation.beta = event.beta || 0; // Front-to-back tilt (-180 to 180)
+          deviceOrientation.gamma = event.gamma || 0; // Left-to-right tilt (-90 to 90)
+        });
+      }
+
+      function startGame() {
+        document.getElementById("instructions").style.display = "none";
+        gameStarted = true;
+        animate();
+      }
+
+      function updatePlayer() {
+        if (!gameStarted) return;
+
+        let moveX = 0;
+        let moveZ = 0;
+
+        // Device orientation controls
+        if (orientationSupported) {
+          moveX = Math.max(-1, Math.min(1, deviceOrientation.gamma / 20));
+          moveZ = Math.max(-1, Math.min(1, deviceOrientation.beta / 20));
         }
-        
-        function setupControls() {
-            // Keyboard controls
-            document.addEventListener('keydown', (event) => {
-                keys[event.code] = true;
-            });
-            
-            document.addEventListener('keyup', (event) => {
-                keys[event.code] = false;
-            });
+
+        // Keyboard controls (override device orientation)
+        if (keys["ArrowLeft"] || keys["KeyA"]) moveX = -1;
+        if (keys["ArrowRight"] || keys["KeyD"]) moveX = 1;
+        if (keys["ArrowUp"] || keys["KeyW"]) moveZ = 1;
+        if (keys["ArrowDown"] || keys["KeyS"]) moveZ = -1;
+
+        // Apply movement
+        player.position.x += moveX * 0.5;
+        player.position.z += moveZ * 0.5;
+
+        // Keep player in bounds
+        player.position.x = Math.max(-100, Math.min(100, player.position.x));
+        player.position.z = Math.max(-100, Math.min(100, player.position.z));
+
+        // Continuous falling
+        player.position.y -= FALL_SPEED;
+        altitude = Math.max(0, altitude - FALL_SPEED * 5);
+
+        // Tilt player based on movement
+        player.rotation.z = -moveX * 0.3;
+        player.rotation.x = moveZ * 0.2;
+
+        // Update camera to follow player
+        camera.position.x = player.position.x;
+        camera.position.y = player.position.y + 10;
+        camera.position.z = player.position.z + 5;
+        camera.lookAt(
+          player.position.x,
+          player.position.y - 5,
+          player.position.z
+        );
+      }
+
+      function updateOrbs() {
+        orbs.forEach((orb, index) => {
+          if (orb.userData.collected) return;
+
+          // Rotate orb
+          orb.rotation.y += orb.userData.rotationSpeed;
+
+          // Pulsing effect
+          const pulse = Math.sin(Date.now() * 0.003 + index) * 0.1 + 0.9;
+          orb.scale.setScalar(pulse);
+
+          // Check collision with player
+          const distance = player.position.distanceTo(orb.position);
+          if (distance < 2) {
+            collectOrb(orb, index);
+          }
+        });
+      }
+
+      function collectOrb(orb, index) {
+        orb.userData.collected = true;
+        score += orb.userData.points;
+        orbsCollectedCount++;
+
+        // Remove orb from scene
+        scene.remove(orb);
+        orbs.splice(index, 1);
+
+        // Create collection effect
+        createCollectionEffect(orb.position);
+
+        // Update UI
+        document.getElementById("score").textContent = score;
+      }
+
+      function createCollectionEffect(position) {
+        const particles = new THREE.Group();
+
+        for (let i = 0; i < 10; i++) {
+          const particleGeometry = new THREE.SphereGeometry(0.1, 4, 4);
+          const particleMaterial = new THREE.MeshBasicMaterial({
+            color: new THREE.Color().setHSL(Math.random(), 1, 0.5),
+          });
+          const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+
+          particle.position.copy(position);
+          particle.userData = {
+            velocity: new THREE.Vector3(
+              (Math.random() - 0.5) * 5,
+              (Math.random() - 0.5) * 5,
+              (Math.random() - 0.5) * 5
+            ),
+          };
+
+          particles.add(particle);
         }
-        
-        function setupDeviceOrientation() {
-            if (typeof DeviceOrientationEvent !== 'undefined' && typeof 
-DeviceOrientationEvent.requestPermission === 'function') {
-                // iOS 13+ permission request
-                DeviceOrientationEvent.requestPermission()
-                    .then(response => {
-                        if (response == 'granted') {
-                            enableOrientationControls();
-                        }
-                    });
-            } else if (window.DeviceOrientationEvent) {
-                // Other devices
-                enableOrientationControls();
-            }
+
+        scene.add(particles);
+
+        // Animate particles
+        let particleLife = 30;
+        const animateParticles = () => {
+          if (particleLife <= 0) {
+            scene.remove(particles);
+            return;
+          }
+
+          particles.children.forEach((particle) => {
+            particle.position.add(particle.userData.velocity);
+            particle.userData.velocity.multiplyScalar(0.95);
+            particle.material.opacity = particleLife / 30;
+          });
+
+          particleLife--;
+          requestAnimationFrame(animateParticles);
+        };
+
+        animateParticles();
+      }
+
+      function updateUI() {
+        document.getElementById("speed").textContent = Math.floor(
+          speed + Math.random() * 10
+        );
+        document.getElementById("altitudeValue").textContent =
+          Math.floor(altitude);
+
+        // Check game end condition
+        if (altitude <= 0) {
+          endGame();
         }
-        
-        function enableOrientationControls() {
-            orientationSupported = true;
-            window.addEventListener('deviceorientation', (event) => {
-                deviceOrientation.beta = event.beta || 0;   // 
-Front-to-back tilt (-180 to 180)
-                deviceOrientation.gamma = event.gamma || 0; // 
-Left-to-right tilt (-90 to 90)
-            });
-        }
-        
-        function startGame() {
-            document.getElementById('instructions').style.display = 
-'none';
-            gameStarted = true;
-            animate();
-        }
-        
-        function updatePlayer() {
-            if (!gameStarted) return;
-            
-            let moveX = 0;
-            let moveZ = 0;
-            
-            // Device orientation controls
-            if (orientationSupported) {
-                moveX = Math.max(-1, Math.min(1, deviceOrientation.gamma / 
-20));
-                moveZ = Math.max(-1, Math.min(1, deviceOrientation.beta / 
-20));
-            }
-            
-            // Keyboard controls (override device orientation)
-            if (keys['ArrowLeft'] || keys['KeyA']) moveX = -1;
-            if (keys['ArrowRight'] || keys['KeyD']) moveX = 1;
-            if (keys['ArrowUp'] || keys['KeyW']) moveZ = 1;
-            if (keys['ArrowDown'] || keys['KeyS']) moveZ = -1;
-            
-            // Apply movement
-            player.position.x += moveX * 0.5;
-            player.position.z += moveZ * 0.5;
-            
-            // Keep player in bounds
-            player.position.x = Math.max(-100, Math.min(100, 
-player.position.x));
-            player.position.z = Math.max(-100, Math.min(100, 
-player.position.z));
-            
-            // Continuous falling
-            player.position.y -= FALL_SPEED;
-            altitude = Math.max(0, altitude - FALL_SPEED * 5);
-            
-            // Tilt player based on movement
-            player.rotation.z = -moveX * 0.3;
-            player.rotation.x = moveZ * 0.2;
-            
-            // Update camera to follow player
-            camera.position.x = player.position.x;
-            camera.position.y = player.position.y + 10;
-            camera.position.z = player.position.z + 5;
-            camera.lookAt(player.position.x, player.position.y - 5, 
-player.position.z);
-        }
-        
-        function updateOrbs() {
-            orbs.forEach((orb, index) => {
-                if (orb.userData.collected) return;
-                
-                // Rotate orb
-                orb.rotation.y += orb.userData.rotationSpeed;
-                
-                // Pulsing effect
-                const pulse = Math.sin(Date.now() * 0.003 + index) * 0.1 + 
-0.9;
-                orb.scale.setScalar(pulse);
-                
-                // Check collision with player
-                const distance = player.position.distanceTo(orb.position);
-                if (distance < 2) {
-                    collectOrb(orb, index);
-                }
-            });
-        }
-        
-        function collectOrb(orb, index) {
-            orb.userData.collected = true;
-            score += orb.userData.points;
-            orbsCollectedCount++;
-            
-            // Remove orb from scene
-            scene.remove(orb);
-            orbs.splice(index, 1);
-            
-            // Create collection effect
-            createCollectionEffect(orb.position);
-            
-            // Update UI
-            document.getElementById('score').textContent = score;
-        }
-        
-        function createCollectionEffect(position) {
-            const particles = new THREE.Group();
-            
-            for (let i = 0; i < 10; i++) {
-                const particleGeometry = new THREE.SphereGeometry(0.1, 4, 
-4);
-                const particleMaterial = new THREE.MeshBasicMaterial({ 
-                    color: new THREE.Color().setHSL(Math.random(), 1, 0.5)
-                });
-                const particle = new THREE.Mesh(particleGeometry, 
-particleMaterial);
-                
-                particle.position.copy(position);
-                particle.userData = {
-                    velocity: new THREE.Vector3(
-                        (Math.random() - 0.5) * 5,
-                        (Math.random() - 0.5) * 5,
-                        (Math.random() - 0.5) * 5
-                    )
-                };
-                
-                particles.add(particle);
-            }
-            
-            scene.add(particles);
-            
-            // Animate particles
-            let particleLife = 30;
-            const animateParticles = () => {
-                if (particleLife <= 0) {
-                    scene.remove(particles);
-                    return;
-                }
-                
-                particles.children.forEach(particle => {
-                    particle.position.add(particle.userData.velocity);
-                    particle.userData.velocity.multiplyScalar(0.95);
-                    particle.material.opacity = particleLife / 30;
-                });
-                
-                particleLife--;
-                requestAnimationFrame(animateParticles);
-            };
-            
-            animateParticles();
-        }
-        
-        function updateUI() {
-            document.getElementById('speed').textContent = 
-Math.floor(speed + Math.random() * 10);
-            document.getElementById('altitudeValue').textContent = 
-Math.floor(altitude);
-            
-            // Check game end condition
-            if (altitude <= 0) {
-                endGame();
-            }
-        }
-        
-        function endGame() {
-            gameStarted = false;
-            document.getElementById('finalScore').textContent = score;
-            document.getElementById('orbsCollected').textContent = 
-orbsCollectedCount;
-            document.getElementById('gameOver').style.display = 'block';
-        }
-        
-        function restartGame() {
-            // Reset game state
-            score = 0;
-            altitude = 10000;
-            orbsCollectedCount = 0;
-            gameStarted = false;
-            
-            // Reset player position
-            player.position.set(0, 0, 0);
-            
-            // Clear and recreate orbs
-            orbs.forEach(orb => scene.remove(orb));
-            orbs = [];
-            createOrbs();
-            
-            // Hide game over screen
-            document.getElementById('gameOver').style.display = 'none';
-            
-            // Show instructions again
-            document.getElementById('instructions').style.display = 
-'block';
-            
-            // Update UI
-            document.getElementById('score').textContent = score;
-        }
-        
-        function animate() {
-            if (!gameStarted) return;
-            
-            requestAnimationFrame(animate);
-            
-            updatePlayer();
-            updateOrbs();
-            updateUI();
-            
-            renderer.render(scene, camera);
-        }
-        
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-        
-        // Initialize the game
-        init();
+      }
+
+      function endGame() {
+        gameStarted = false;
+        document.getElementById("finalScore").textContent = score;
+        document.getElementById("orbsCollected").textContent =
+          orbsCollectedCount;
+        document.getElementById("gameOver").style.display = "block";
+      }
+
+      function restartGame() {
+        // Reset game state
+        score = 0;
+        altitude = 10000;
+        orbsCollectedCount = 0;
+        gameStarted = false;
+
+        // Reset player position
+        player.position.set(0, 0, 0);
+
+        // Clear and recreate orbs
+        orbs.forEach((orb) => scene.remove(orb));
+        orbs = [];
+        createOrbs();
+
+        // Hide game over screen
+        document.getElementById("gameOver").style.display = "none";
+
+        // Show instructions again
+        document.getElementById("instructions").style.display = "block";
+
+        // Update UI
+        document.getElementById("score").textContent = score;
+      }
+
+      function animate() {
+        if (!gameStarted) return;
+
+        requestAnimationFrame(animate);
+
+        updatePlayer();
+        updateOrbs();
+        updateUI();
+
+        renderer.render(scene, camera);
+      }
+
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      // Initialize the game
+      init();
     </script>
-</body>
+  </body>
 </html>
