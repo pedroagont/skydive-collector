@@ -237,7 +237,7 @@
 
       function createOrbs() {
         for (let i = 0; i < ORB_COUNT; i++) {
-          const orbGeometry = new THREE.SphereGeometry(10, 16, 16);
+          const orbGeometry = new THREE.SphereGeometry(20, 20, 20);
           const hue = Math.random();
           const orbMaterial = new THREE.MeshLambertMaterial({
             color: new THREE.Color().setHSL(hue, 1, 0.5),
@@ -407,7 +407,7 @@
 
           // Check collision with player
           const distance = player.position.distanceTo(orb.position);
-          if (distance < 2) {
+          if (distance < 5) {
             collectOrb(orb, index);
           }
         });
