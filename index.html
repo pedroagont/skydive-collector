@@ -152,7 +152,7 @@
 
       // Game settings
       const FALL_SPEED = 2;
-      const ORB_COUNT = 50;
+      const ORB_COUNT = 80;
       const CLOUD_COUNT = 20;
       const GAME_HEIGHT = 10000;
 
@@ -237,7 +237,7 @@
 
       function createOrbs() {
         for (let i = 0; i < ORB_COUNT; i++) {
-          const orbGeometry = new THREE.SphereGeometry(6, 16, 16);
+          const orbGeometry = new THREE.SphereGeometry(10, 16, 16);
           const hue = Math.random();
           const orbMaterial = new THREE.MeshLambertMaterial({
             color: new THREE.Color().setHSL(hue, 1, 0.5),
@@ -273,7 +273,7 @@
           // Create cloud puffs
           for (let j = 0; j < 5; j++) {
             const puffGeometry = new THREE.SphereGeometry(
-              Math.random() * 10 + 5,
+              Math.random() * 10 + 10,
               8,
               8
             );
