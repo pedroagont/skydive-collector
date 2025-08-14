@@ -237,7 +237,7 @@
 
       function createOrbs() {
         for (let i = 0; i < ORB_COUNT; i++) {
-          const orbGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+          const orbGeometry = new THREE.SphereGeometry(3, 16, 16);
           const hue = Math.random();
           const orbMaterial = new THREE.MeshLambertMaterial({
             color: new THREE.Color().setHSL(hue, 1, 0.5),
