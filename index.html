@@ -205,13 +205,13 @@
         setupControls();
 
         // Setup device orientation
-        setupDeviceOrientation();
+        // setupDeviceOrientation();
 
         // Start button event
 
         document
           .getElementById("startButton")
-          .addEventListener("click", startGame);
+          .addEventListener("click", setupDeviceOrientation);
 
         // Window resize handler
         window.addEventListener("resize", onWindowResize);
@@ -324,11 +324,14 @@
           DeviceOrientationEvent.requestPermission().then((response) => {
             if (response == "granted") {
               enableOrientationControls();
+              startGame();
             }
-          });
+          })
+          .catch(console.error);
         } else if (window.DeviceOrientationEvent) {
           // Other devices
           enableOrientationControls();
+          startGame();
         }
       }
 
