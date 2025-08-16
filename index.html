@@ -3,7 +3,53 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Skydiving Orb Collector</title>
+    <title>Skydrop Collector</title>
+
+    <!-- Basic SEO -->
+    <meta
+      name="description"
+      content="Dive from 17,000 ft in Skydrop Collector! Collect glowing orbs, race through the clouds, and land safely. Play on desktop or mobile with tilt controls."
+    />
+    <meta
+      name="keywords"
+      content="skydiving game, Skydrop Collector, orb collector, 3D browser game, Three.js skydiving, WebGL game, freefall simulator, tilt control game, parachute game, arcade sky game"
+    />
+    <meta name="author" content="Pedro Gonzalez" />
+    <link rel="icon" type="image/png" href="./favicon.png" />
+
+    <!-- Open Graph / Facebook -->
+    <meta
+      property="og:title"
+      content="Skydrop Collector Game"
+    />
+    <meta
+      property="og:description"
+      content="Skydive from 17,000 ft, collect glowing orbs, and beat the high score! Works on desktop (WASD/Arrows) & mobile tilt controls."
+    />
+    <meta
+      property="og:image"
+      content="https://skydrop-collector.onrender.com/preview.jpg"
+    />
+    <meta property="og:url" content="https://skydrop-collector.onrender.com" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Skydrop Collector" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Skydrop Collector Game"
+    />
+    <meta
+      name="twitter:description"
+      content="Jump from 17,000 ft, race through the sky, and collect orbs before landing! Play on desktop or mobile."
+    />
+    <meta
+      name="twitter:image"
+      content="https://skydrop-collector.onrender.com/preview.jpg"
+    />
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
       body {
@@ -213,7 +259,7 @@
 
         finishSound = new Audio("audio/finish.mp3");
         finishSound.volume = 1;
-        
+
         orbSound = new Audio("audio/orb.mp3");
         orbSound.volume = 1;
 
