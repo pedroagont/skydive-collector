@@ -118,7 +118,7 @@
 
       <div id="instructions">
         <h2>🪂 Skydrop Collector</h2>
-        <p> Fly through the sky and collect the balloons while falling</p>
+        <p>Fly through the sky and collect the balloons while falling</p>
         <p><strong>Desktop:</strong> Use WASD or Arrow Keys</p>
         <p><strong>Mobile:</strong> Tilt your device</p>
         <button id="startButton">Start Skydrop!</button>
@@ -154,6 +154,9 @@
       const ORB_COUNT = 80;
       const CLOUD_COUNT = 200;
       const GAME_HEIGHT = 17000;
+
+      // Audio
+      let bgMusic, finishSound, orbSound;
 
       function init() {
         // Create scene
@@ -191,7 +194,7 @@
         directionalLight.shadow.mapSize.height = 2048;
         scene.add(directionalLight);
 
-        // Create player (skydiver)
+        // Create player (skydrop)
         createPlayer();
 
         // Create orbs
@@ -203,11 +206,18 @@
         // Setup controls
         setupControls();
 
-        // Setup device orientation
-        // setupDeviceOrientation();
+        // Load audio files
+        bgMusic = new Audio("audio/background.mp3");
+        bgMusic.loop = true;
+        bgMusic.volume = 0.3;
+
+        finishSound = new Audio("audio/finish.mp3");
+        finishSound.volume = 1;
+        
+        orbSound = new Audio("audio/orb.mp3");
+        orbSound.volume = 1;
 
         // Start button event
-
         document
           .getElementById("startButton")
           .addEventListener("click", setupDeviceOrientation);
@@ -320,13 +330,14 @@
           typeof DeviceOrientationEvent.requestPermission === "function"
         ) {
           // iOS 13+ permission request
-          DeviceOrientationEvent.requestPermission().then((response) => {
-            if (response == "granted") {
-              enableOrientationControls();
-              startGame();
-            }
-          })
-          .catch(console.error);
+          DeviceOrientationEvent.requestPermission()
+            .then((response) => {
+              if (response == "granted") {
+                enableOrientationControls();
+                startGame();
+              }
+            })
+            .catch(console.error);
         } else if (window.DeviceOrientationEvent) {
           // Other devices
           enableOrientationControls();
@@ -345,6 +356,7 @@
       function startGame() {
         document.getElementById("instructions").style.display = "none";
         gameStarted = true;
+        bgMusic.play();
         animate();
       }
 
@@ -386,11 +398,7 @@
         camera.position.x = player.position.x;
         camera.position.y = player.position.y + 10;
         camera.position.z = player.position.z + 5;
-        camera.lookAt(
-          player.position.x,
-          player.position.y,
-          player.position.z
-        );
+        camera.lookAt(player.position.x, player.position.y, player.position.z);
       }
 
       function updateOrbs() {
@@ -416,6 +424,7 @@
         orb.userData.collected = true;
         score += orb.userData.points;
         orbsCollectedCount++;
+        orbSound.play();
 
         // Remove orb from scene
         scene.remove(orb);
@@ -492,6 +501,8 @@
         document.getElementById("orbsCollected").textContent =
           orbsCollectedCount;
         document.getElementById("gameOver").style.display = "block";
+        finishSound.play();
+        bgMusic.pause();
       }
 
       function restartGame() {
