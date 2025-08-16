@@ -109,20 +109,19 @@
     <div id="gameContainer">
       <div id="ui">
         <div>Score: <span id="score">0</span></div>
-        <div>Speed: <span id="speed">0</span> mph</div>
+        <div>Speed: <span id="speed">0</span> kmh</div>
       </div>
 
       <div id="altitude">
-        Altitude: <span id="altitudeValue">10000</span> ft
+        Altitude: <span id="altitudeValue">17000</span> ft
       </div>
 
       <div id="instructions">
-        <h2>🪂 Sky Orb Collector</h2>
-        <p>Tilt your device to steer through the sky!</p>
-        <p>Collect glowing orbs while falling</p>
+        <h2>🪂 Skydrop Collector</h2>
+        <p> Fly through the sky and collect the balloons while falling</p>
         <p><strong>Desktop:</strong> Use WASD or Arrow Keys</p>
         <p><strong>Mobile:</strong> Tilt your device</p>
-        <button id="startButton">Start Skydiving!</button>
+        <button id="startButton">Start Skydrop!</button>
       </div>
 
       <div id="gameOver">
@@ -139,8 +138,8 @@
       let clouds = [];
       let gameStarted = false;
       let score = 0;
-      let altitude = 10000;
-      let speed = 120;
+      let altitude = 17000;
+      let speed = 200;
       let orbsCollectedCount = 0;
 
       // Device orientation data
@@ -151,10 +150,10 @@
       let keys = {};
 
       // Game settings
-      const FALL_SPEED = 2;
+      const FALL_SPEED = 3;
       const ORB_COUNT = 80;
       const CLOUD_COUNT = 20;
-      const GAME_HEIGHT = 10000;
+      const GAME_HEIGHT = 17000;
 
       function init() {
         // Create scene
@@ -357,23 +356,23 @@
 
         // Device orientation controls
         if (orientationSupported) {
-          moveX = Math.max(-1, Math.min(1, deviceOrientation.gamma / 20));
-          moveZ = Math.max(-1, Math.min(1, deviceOrientation.beta / 20));
+          moveX = Math.max(-2, Math.min(2, deviceOrientation.gamma / 20));
+          moveZ = Math.max(-2, Math.min(2, deviceOrientation.beta / 20));
         }
 
         // Keyboard controls (override device orientation)
         if (keys["ArrowLeft"] || keys["KeyA"]) moveX = -1;
         if (keys["ArrowRight"] || keys["KeyD"]) moveX = 1;
-        if (keys["ArrowUp"] || keys["KeyW"]) moveZ = 1;
-        if (keys["ArrowDown"] || keys["KeyS"]) moveZ = -1;
+        if (keys["ArrowUp"] || keys["KeyW"]) moveZ = -1;
+        if (keys["ArrowDown"] || keys["KeyS"]) moveZ = 1;
 
         // Apply movement
-        player.position.x += moveX * 0.5;
-        player.position.z += moveZ * 0.5;
+        player.position.x += moveX * 3;
+        player.position.z += moveZ * 3;
 
         // Keep player in bounds
-        player.position.x = Math.max(-100, Math.min(100, player.position.x));
-        player.position.z = Math.max(-100, Math.min(100, player.position.z));
+        player.position.x = Math.max(-150, Math.min(150, player.position.x));
+        player.position.z = Math.max(-150, Math.min(150, player.position.z));
 
         // Continuous falling
         player.position.y -= FALL_SPEED;
@@ -389,7 +388,7 @@
         camera.position.z = player.position.z + 5;
         camera.lookAt(
           player.position.x,
-          player.position.y - 5,
+          player.position.y,
           player.position.z
         );
       }
@@ -498,7 +497,7 @@
       function restartGame() {
         // Reset game state
         score = 0;
-        altitude = 10000;
+        altitude = 17000;
         orbsCollectedCount = 0;
         gameStarted = false;
 
