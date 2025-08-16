@@ -4,11 +4,9 @@ A **fun 3D browser game** built with [Three.js](https://threejs.org/) where you 
 
 Play with **WASD/Arrow keys on desktop** or **tilt controls on mobile** for an immersive freefall experience.  
 
+> 🕹️ [Playable Demo](https://skydrop-collector.onrender.com)
 
-
-
-
-👉 [Play the game online](https://skydrop-collector.onrender.com)
+![Skydrop Collector Game](preview.jpg)
 
 ---
 
