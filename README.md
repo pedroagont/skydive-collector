@@ -19,7 +19,9 @@ Play with **WASD/Arrow keys on desktop** or **tilt controls on mobile** for an i
 - Watch the **altitude and speed meter** as you fall.  
 - At the end, your **final score & collected orbs** are displayed.  
 
-✨ Features:  
+---
+
+## ✨ Features:  
 - Responsive controls (desktop + mobile tilt).  
 - Immersive **3D sky, clouds, and orbs**.  
 - Background music + sound effects (start, orb collection, finish).  
