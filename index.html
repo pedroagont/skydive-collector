@@ -156,6 +156,9 @@
       <div id="ui">
         <div>Score: <span id="score">0</span></div>
         <div>Speed: <span id="speed">0</span> kmh</div>
+        <button id="calibrateBtn" style="margin-top:8px;border:none;border-radius:8px;padding:6px 10px;cursor:pointer">
+          Recalibrate
+        </button>
       </div>
 
       <div id="altitude">
@@ -176,6 +179,7 @@
         <p>Orbs Collected: <span id="orbsCollected">0</span></p>
         <button id="restartButton" onclick="restartGame()">Jump Again!</button>
       </div>
+
     </div>
 
     <script>
@@ -188,9 +192,23 @@
       let speed = 200;
       let orbsCollectedCount = 0;
 
-      // Device orientation data
+      // --- Tilt calibration & smoothing ---
       let deviceOrientation = { beta: 0, gamma: 0 };
       let orientationSupported = false;
+      
+      let baseline = { beta: 0, gamma: 0, angle: 0 };
+      let calibrated = false;
+
+      // smoothing state
+      let smoothed = { x: 0, z: 0 };
+
+      // tuning knobs
+      const DEADZONE_DEG = 1.5;   // ignore tiny tilts (< ~2–3º feels good)
+      const SMOOTHING = 0.8;     // 0.1–0.2 = smooth, >0.25 = snappier
+      const MAX_MOVE = 2;         // caps raw move before scaling
+      const SENS_X = 1 / 18;      // smaller = less sensitive (side tilt)
+      const SENS_Z = 1 / 22;      // smaller = less sensitive (forward/back tilt)
+
 
       // Keyboard controls
       let keys = {};
@@ -203,6 +221,118 @@
 
       // Audio
       let bgMusic, finishSound, orbSound;
+      const ORB_POOL_SIZE = 6;
+      const orbPool = [];
+
+      function initAudio() {
+        bgMusic = new Audio("audio/background.mp3");
+        finishSound = new Audio("audio/finish.mp3");
+        orbSound = new Audio("audio/orb.mp3");
+
+        [bgMusic, finishSound, orbSound].forEach(a => {
+          a.preload = "auto";
+          a.load();
+        });
+
+        // Make a small pool for overlapping orb hits
+        for (let i = 0; i < ORB_POOL_SIZE; i++) {
+          const c = orbSound.cloneNode(); // clones share decode, low overhead
+          c.preload = "auto";
+          c.load();
+          orbPool.push(c);
+        }
+
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "hidden") {
+            try { bgMusic.pause(); } catch(_) {}
+          } else if (gameStarted) {
+            try { bgMusic.play(); } catch(_) {}
+          }
+        });
+      }
+
+      // Call in init()
+      initAudio();
+
+// Unlock on the same click that starts the game
+async function unlockAudio() {
+  const all = [bgMusic, finishSound, ...orbPool];
+  await Promise.all(all.map(async (a) => {
+    try {
+      a.muted = true;
+      a.currentTime = 0;
+      await a.play();   // fulfills gesture requirement
+      a.pause();
+      a.currentTime = 0;
+      a.muted = false;
+    } catch (_) { /* ignore */ }
+  }));
+}
+
+      function getScreenAngle() {
+      // 0, 90, 180, 270 (or -90 on some browsers)
+      const ang = (screen.orientation && typeof screen.orientation.angle === "number")
+        ? screen.orientation.angle
+        : (typeof window.orientation === "number" ? window.orientation : 0);
+      // Normalize -90 to 270 for easier switch logic
+      return (ang === -90) ? 270 : (ang % 360 + 360) % 360;
+    }
+
+    // Convert raw beta/gamma + current screen orientation into logical x/z tilts (in degrees),
+    // *before* baseline subtraction and scaling.
+    function mapTilts(beta, gamma) {
+      const angle = getScreenAngle();
+      // Portrait: x <- gamma (left/right), z <- beta (forward/back)
+      // Landscape-left (90): x <- -beta, z <- gamma
+      // Landscape-right (270): x <- beta, z <- -gamma
+      // Portrait-upside-down (180): x <- -gamma, z <- -beta
+      switch (angle) {
+        case 0:   return { x: gamma,  z: beta,  angle };
+        case 90:  return { x: -beta,  z: gamma, angle };
+        case 180: return { x: -gamma, z: -beta, angle };
+        case 270: return { x: beta,   z: -gamma, angle };
+        default:  return { x: gamma,  z: beta,  angle };
+      }
+    }
+
+    // Take N samples over ~600ms to set the neutral baseline
+    function autoCalibrate(samples = 20, durationMs = 600) {
+      return new Promise((resolve) => {
+        let count = 0;
+        let sumX = 0, sumZ = 0;
+        const startAngle = getScreenAngle();
+
+        const id = setInterval(() => {
+          const mapped = mapTilts(deviceOrientation.beta, deviceOrientation.gamma);
+          sumX += mapped.x;
+          sumZ += mapped.z;
+          count++;
+
+          if (count >= samples) {
+            clearInterval(id);
+            baseline = {
+              beta: 0, // not used directly post mapping
+              gamma: 0,
+              angle: startAngle,
+              x: sumX / count,
+              z: sumZ / count,
+            };
+            calibrated = true;
+            resolve();
+          }
+        }, Math.max(10, Math.floor(durationMs / samples)));
+      });
+    }
+
+    // Utility: apply deadzone and clamp
+    function processTilt(rawDeg, deadzone, maxAbs) {
+      const mag = Math.abs(rawDeg);
+      if (mag < deadzone) return 0;
+      // linear re-map after deadzone to keep feel consistent
+      const sign = rawDeg < 0 ? -1 : 1;
+      const adjusted = (mag - deadzone);
+      return sign * Math.min(adjusted, maxAbs);
+    }
 
       function init() {
         // Create scene
@@ -270,6 +400,15 @@
 
         // Window resize handler
         window.addEventListener("resize", onWindowResize);
+
+        document.getElementById("calibrateBtn")?.addEventListener("click", async () => {
+          // brief hint to the player
+          const old = document.getElementById("calibrateBtn").textContent;
+          document.getElementById("calibrateBtn").textContent = "Hold still…";
+          await autoCalibrate();
+          document.getElementById("calibrateBtn").textContent = old;
+        });
+
       }
 
       function createPlayer() {
@@ -394,17 +533,21 @@
       function enableOrientationControls() {
         orientationSupported = true;
         window.addEventListener("deviceorientation", (event) => {
-          deviceOrientation.beta = event.beta || 0; // Front-to-back tilt (-180 to 180)
-          deviceOrientation.gamma = event.gamma || 0; // Left-to-right tilt (-90 to 90)
+          deviceOrientation.beta = (event.beta  || 0); // Front-to-back tilt (-180 to 180)
+          deviceOrientation.gamma = (event.gamma || 0); // Left-to-right tilt (-90 to 90)
         });
       }
 
-      function startGame() {
+
+      async function startGame() {
         document.getElementById("instructions").style.display = "none";
+        await unlockAudio();          // << crucial
         gameStarted = true;
-        bgMusic.play();
+        try { await bgMusic.play(); } catch (_) {}
+        await autoCalibrate();        // from previous fix
         animate();
       }
+
 
       function updatePlayer() {
         if (!gameStarted) return;
@@ -412,10 +555,31 @@
         let moveX = 0;
         let moveZ = 0;
 
-        // Device orientation controls
-        if (orientationSupported) {
-          moveX = Math.max(-2, Math.min(2, deviceOrientation.gamma / 20));
-          moveZ = Math.max(-2, Math.min(2, deviceOrientation.beta / 20));
+        // Device orientation controls (with calibration + smoothing)
+        if (orientationSupported && calibrated) {
+          // Map current raw to logical x/z based on screen orientation
+          const mapped = mapTilts(deviceOrientation.beta, deviceOrientation.gamma);
+
+          // If the user rotated the screen since calibration, still behave sensibly:
+          // Re-map baseline to *current* angle by just using stored neutral (x,z).
+          // (For best UX, ask them to hit "Recalibrate" after rotating; this fallback still works decently.)
+          const rawXdeg = mapped.x - baseline.x;
+          const rawZdeg = mapped.z - baseline.z;
+
+          // Deadzone + clamp
+          const dzX = processTilt(rawXdeg, DEADZONE_DEG, 30);
+          const dzZ = processTilt(rawZdeg, DEADZONE_DEG, 30);
+
+          // Scale degrees → movement unit
+          const targetX = Math.max(-MAX_MOVE, Math.min(MAX_MOVE, dzX * SENS_X));
+          const targetZ = Math.max(-MAX_MOVE, Math.min(MAX_MOVE, dzZ * SENS_Z));
+
+          // Smooth (exponential moving average)
+          smoothed.x += (targetX - smoothed.x) * SMOOTHING;
+          smoothed.z += (targetZ - smoothed.z) * SMOOTHING;
+
+          moveX = smoothed.x;
+          moveZ = smoothed.z;
         }
 
         // Keyboard controls (override device orientation)
@@ -429,8 +593,8 @@
         player.position.z += moveZ * 3;
 
         // Keep player in bounds
-        player.position.x = Math.max(-150, Math.min(150, player.position.x));
-        player.position.z = Math.max(-150, Math.min(150, player.position.z));
+        player.position.x = Math.max(-300, Math.min(300, player.position.x));
+        player.position.z = Math.max(-300, Math.min(300, player.position.z));
 
         // Continuous falling
         player.position.y -= FALL_SPEED;
@@ -466,28 +630,40 @@
         });
       }
 
+      function playFromPool(pool) {
+        let a = pool.find(x => x.paused || x.ended);
+        if (!a) {
+          // optional: grow the pool if all are busy
+          a = pool[0].cloneNode();
+          pool.push(a);
+        }
+        try {
+          a.currentTime = 0;
+          const p = a.play();
+          if (p && typeof p.catch === "function") p.catch(() => {});
+        } catch (_) {}
+      }
+
+
       function collectOrb(orb, index) {
         orb.userData.collected = true;
         score += orb.userData.points;
         orbsCollectedCount++;
-        orbSound.play();
 
-        // Remove orb from scene
+        playFromPool(orbPool); // instead of orbSound.play()
+
         scene.remove(orb);
         orbs.splice(index, 1);
-
-        // Create collection effect
         createCollectionEffect(orb.position);
-
-        // Update UI
         document.getElementById("score").textContent = score;
       }
+
 
       function createCollectionEffect(position) {
         const particles = new THREE.Group();
 
         for (let i = 0; i < 10; i++) {
-          const particleGeometry = new THREE.SphereGeometry(0.1, 4, 4);
+          const particleGeometry = new THREE.SphereGeometry(5, 4, 4);
           const particleMaterial = new THREE.MeshBasicMaterial({
             color: new THREE.Color().setHSL(Math.random(), 1, 0.5),
           });
@@ -541,14 +717,17 @@
         }
       }
 
-      function endGame() {
+      async function endGame() {
         gameStarted = false;
         document.getElementById("finalScore").textContent = score;
-        document.getElementById("orbsCollected").textContent =
-          orbsCollectedCount;
+        document.getElementById("orbsCollected").textContent = orbsCollectedCount;
         document.getElementById("gameOver").style.display = "block";
-        finishSound.play();
-        bgMusic.pause();
+
+        try { bgMusic.pause(); } catch(_) {}
+        try {
+          finishSound.currentTime = 0;
+          await finishSound.play();
+        } catch(_) {}
       }
 
       function restartGame() {
