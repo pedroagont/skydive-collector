@@ -663,7 +663,7 @@ async function unlockAudio() {
         const particles = new THREE.Group();
 
         for (let i = 0; i < 10; i++) {
-          const particleGeometry = new THREE.SphereGeometry(0.1, 4, 4);
+          const particleGeometry = new THREE.SphereGeometry(5, 4, 4);
           const particleMaterial = new THREE.MeshBasicMaterial({
             color: new THREE.Color().setHSL(Math.random(), 1, 0.5),
           });
