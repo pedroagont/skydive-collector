@@ -221,6 +221,53 @@
 
       // Audio
       let bgMusic, finishSound, orbSound;
+      const ORB_POOL_SIZE = 6;
+      const orbPool = [];
+
+      function initAudio() {
+        bgMusic = new Audio("audio/background.mp3");
+        finishSound = new Audio("audio/finish.mp3");
+        orbSound = new Audio("audio/orb.mp3");
+
+        [bgMusic, finishSound, orbSound].forEach(a => {
+          a.preload = "auto";
+          a.load();
+        });
+
+        // Make a small pool for overlapping orb hits
+        for (let i = 0; i < ORB_POOL_SIZE; i++) {
+          const c = orbSound.cloneNode(); // clones share decode, low overhead
+          c.preload = "auto";
+          c.load();
+          orbPool.push(c);
+        }
+
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "hidden") {
+            try { bgMusic.pause(); } catch(_) {}
+          } else if (gameStarted) {
+            try { bgMusic.play(); } catch(_) {}
+          }
+        });
+      }
+
+      // Call in init()
+      initAudio();
+
+// Unlock on the same click that starts the game
+async function unlockAudio() {
+  const all = [bgMusic, finishSound, ...orbPool];
+  await Promise.all(all.map(async (a) => {
+    try {
+      a.muted = true;
+      a.currentTime = 0;
+      await a.play();   // fulfills gesture requirement
+      a.pause();
+      a.currentTime = 0;
+      a.muted = false;
+    } catch (_) { /* ignore */ }
+  }));
+}
 
       function getScreenAngle() {
       // 0, 90, 180, 270 (or -90 on some browsers)
@@ -494,14 +541,13 @@
 
       async function startGame() {
         document.getElementById("instructions").style.display = "none";
+        await unlockAudio();          // << crucial
         gameStarted = true;
-        bgMusic.play();
-        
-          // CALIBRATE: treat the user's *current* hold angle as neutral
-        await autoCalibrate();
-        
+        try { await bgMusic.play(); } catch (_) {}
+        await autoCalibrate();        // from previous fix
         animate();
       }
+
 
       function updatePlayer() {
         if (!gameStarted) return;
@@ -509,32 +555,32 @@
         let moveX = 0;
         let moveZ = 0;
 
-  // Device orientation controls (with calibration + smoothing)
-  if (orientationSupported && calibrated) {
-    // Map current raw to logical x/z based on screen orientation
-    const mapped = mapTilts(deviceOrientation.beta, deviceOrientation.gamma);
+        // Device orientation controls (with calibration + smoothing)
+        if (orientationSupported && calibrated) {
+          // Map current raw to logical x/z based on screen orientation
+          const mapped = mapTilts(deviceOrientation.beta, deviceOrientation.gamma);
 
-    // If the user rotated the screen since calibration, still behave sensibly:
-    // Re-map baseline to *current* angle by just using stored neutral (x,z).
-    // (For best UX, ask them to hit "Recalibrate" after rotating; this fallback still works decently.)
-    const rawXdeg = mapped.x - baseline.x;
-    const rawZdeg = mapped.z - baseline.z;
+          // If the user rotated the screen since calibration, still behave sensibly:
+          // Re-map baseline to *current* angle by just using stored neutral (x,z).
+          // (For best UX, ask them to hit "Recalibrate" after rotating; this fallback still works decently.)
+          const rawXdeg = mapped.x - baseline.x;
+          const rawZdeg = mapped.z - baseline.z;
 
-    // Deadzone + clamp
-    const dzX = processTilt(rawXdeg, DEADZONE_DEG, 30);
-    const dzZ = processTilt(rawZdeg, DEADZONE_DEG, 30);
+          // Deadzone + clamp
+          const dzX = processTilt(rawXdeg, DEADZONE_DEG, 30);
+          const dzZ = processTilt(rawZdeg, DEADZONE_DEG, 30);
 
-    // Scale degrees → movement unit
-    const targetX = Math.max(-MAX_MOVE, Math.min(MAX_MOVE, dzX * SENS_X));
-    const targetZ = Math.max(-MAX_MOVE, Math.min(MAX_MOVE, dzZ * SENS_Z));
+          // Scale degrees → movement unit
+          const targetX = Math.max(-MAX_MOVE, Math.min(MAX_MOVE, dzX * SENS_X));
+          const targetZ = Math.max(-MAX_MOVE, Math.min(MAX_MOVE, dzZ * SENS_Z));
 
-    // Smooth (exponential moving average)
-    smoothed.x += (targetX - smoothed.x) * SMOOTHING;
-    smoothed.z += (targetZ - smoothed.z) * SMOOTHING;
+          // Smooth (exponential moving average)
+          smoothed.x += (targetX - smoothed.x) * SMOOTHING;
+          smoothed.z += (targetZ - smoothed.z) * SMOOTHING;
 
-    moveX = smoothed.x;
-    moveZ = smoothed.z;
-  }
+          moveX = smoothed.x;
+          moveZ = smoothed.z;
+        }
 
         // Keyboard controls (override device orientation)
         if (keys["ArrowLeft"] || keys["KeyA"]) moveX = -1;
@@ -584,22 +630,34 @@
         });
       }
 
+      function playFromPool(pool) {
+        let a = pool.find(x => x.paused || x.ended);
+        if (!a) {
+          // optional: grow the pool if all are busy
+          a = pool[0].cloneNode();
+          pool.push(a);
+        }
+        try {
+          a.currentTime = 0;
+          const p = a.play();
+          if (p && typeof p.catch === "function") p.catch(() => {});
+        } catch (_) {}
+      }
+
+
       function collectOrb(orb, index) {
         orb.userData.collected = true;
         score += orb.userData.points;
         orbsCollectedCount++;
-        orbSound.play();
 
-        // Remove orb from scene
+        playFromPool(orbPool); // instead of orbSound.play()
+
         scene.remove(orb);
         orbs.splice(index, 1);
-
-        // Create collection effect
         createCollectionEffect(orb.position);
-
-        // Update UI
         document.getElementById("score").textContent = score;
       }
+
 
       function createCollectionEffect(position) {
         const particles = new THREE.Group();
@@ -659,14 +717,17 @@
         }
       }
 
-      function endGame() {
+      async function endGame() {
         gameStarted = false;
         document.getElementById("finalScore").textContent = score;
-        document.getElementById("orbsCollected").textContent =
-          orbsCollectedCount;
+        document.getElementById("orbsCollected").textContent = orbsCollectedCount;
         document.getElementById("gameOver").style.display = "block";
-        finishSound.play();
-        bgMusic.pause();
+
+        try { bgMusic.pause(); } catch(_) {}
+        try {
+          finishSound.currentTime = 0;
+          await finishSound.play();
+        } catch(_) {}
       }
 
       function restartGame() {
