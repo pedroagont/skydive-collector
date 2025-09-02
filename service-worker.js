@@ -1,5 +1,5 @@
 /* service-worker.js */
-const CACHE_NAME = 'skydrop-v1';
+const CACHE_NAME = 'skydive-v1';
 const APP_SHELL = [
   '/',                // adjust to '/index.html' if your host doesn't serve index on '/'
   '/index.html',
