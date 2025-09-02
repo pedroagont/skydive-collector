@@ -1,7 +1,7 @@
 {
-  "name": "Skydrop Collector",
-  "short_name": "Skydrop",
-  "description": "Dive from 17,000 ft, collect glowing orbs, race through the clouds, and land safely.",
+  "name": "Skydive Collector",
+  "short_name": "Skydive Game",
+  "description": "Skydive from 17,000 ft, collect balloons, race through the clouds, and land safely.",
   "start_url": ".",
   "scope": "/",
   "display": "standalone",
