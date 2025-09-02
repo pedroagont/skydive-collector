@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Skydrop Collector</title>
+    <title>Skydive Collector</title>
 
     <!-- Basic SEO -->
     <meta
       name="description"
-      content="Dive from 17,000 ft in Skydrop Collector! Collect glowing orbs, race through the clouds, and land safely. Play on desktop or mobile with tilt controls."
+      content="Dive from 17,000 ft in Skydive Collector! Collect balloons, race through the clouds, and land safely. Play on desktop or mobile with tilt controls."
     />
     <meta
       name="keywords"
-      content="skydiving game, Skydrop Collector, orb collector, 3D browser game, Three.js skydiving, WebGL game, freefall simulator, tilt control game, parachute game, arcade sky game"
+      content="skydiving game, Skydive Collector, balloon collector, 3D browser game, Three.js skydiving, WebGL game, freefall simulator, tilt control game, parachute game, arcade sky game"
     />
     <meta name="author" content="Pedro Gonzalez" />
     <link rel="icon" type="image/png" href="./favicon.png" />
@@ -20,11 +20,11 @@
     <!-- Open Graph / Facebook -->
     <meta
       property="og:title"
-      content="Skydrop Collector Game"
+      content="Skydive Collector Game"
     />
     <meta
       property="og:description"
-      content="Skydive from 17,000 ft, collect glowing orbs, and beat the high score! Works on desktop (WASD/Arrows) & mobile tilt controls."
+      content="Skydive from 17,000 ft, collect glowing balloons, and beat the high score! Works on desktop (WASD/Arrows) & mobile tilt controls."
     />
     <meta
       property="og:image"
@@ -32,18 +32,18 @@
     />
     <meta property="og:url" content="https://skydrop-collector.onrender.com" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Skydrop Collector" />
+    <meta property="og:site_name" content="Skydive Collector" />
     <meta property="og:locale" content="en_US" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:title"
-      content="Skydrop Collector Game"
+      content="Skydive Collector Game"
     />
     <meta
       name="twitter:description"
-      content="Jump from 17,000 ft, race through the sky, and collect orbs before landing! Play on desktop or mobile."
+      content="Jump from 17,000 ft, race through the sky, and collect balloons before landing! Play on desktop or mobile."
     />
     <meta
       name="twitter:image"
@@ -57,7 +57,7 @@
     <!-- iOS install support -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Skydrop">
+    <meta name="apple-mobile-web-app-title" content="Skydive">
     <link rel="apple-touch-icon" href="/icons/icon-180.png">
 
 
@@ -106,7 +106,7 @@
         max-width: 400px;
       }
 
-      #startButton {
+      #startButton, #restartButton {
         background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
         border: none;
         color: white;
@@ -116,9 +116,10 @@
         cursor: pointer;
         margin-top: 20px;
         transition: transform 0.2s;
+        font-weight: bold;
       }
 
-      #startButton:hover {
+      #startButton:hover, #restartButton:hover {
         transform: scale(1.05);
       }
 
@@ -160,10 +161,32 @@
         font-size: 18px;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
       }
+
+      #instructions, #gameOver {
+          min-width: 280px;
+      }
+
+      footer {
+        position:absolute;
+        bottom:20px;
+        left:50%;
+        transform:translateX(-50%);
+        color:white;
+        text-align:center;
+        
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        width: 90%;
+        font-size: 0.8em;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+      }
+
     </style>
   </head>
   <body>
-    <div id="gameContainer">
+    <main id="gameContainer">
       <div id="ui">
         <div>Score: <span id="score">0</span></div>
         <div>Speed: <span id="speed">0</span> kmh</div>
@@ -177,21 +200,27 @@
       </div>
 
       <div id="instructions">
-        <h2>🪂 Skydrop Collector</h2>
+        <h2>🪂 Skydive Collector</h2>
         <p>Fly through the sky and collect the balloons while falling</p>
         <p><strong>Desktop:</strong> Use WASD or Arrow Keys</p>
         <p><strong>Mobile:</strong> Tilt your device</p>
-        <button id="startButton">Start Skydrop!</button>
+        <button id="startButton">Start Skydiving!</button>
       </div>
 
       <div id="gameOver">
         <h2>Mission Complete!</h2>
         <p>Final Score: <span id="finalScore">0</span></p>
-        <p>Orbs Collected: <span id="orbsCollected">0</span></p>
+        <p>Balloons Collected: <span id="orbsCollected">0</span></p>
         <button id="restartButton" onclick="restartGame()">Jump Again!</button>
       </div>
 
-    </div>
+    </main>
+
+
+    <footer>
+        <p>Created by <a href="https://github.com/pedroagont" target="_blank">@pedroagont</a></p>
+        <p><a href="https://reservaparacaidismo.com/referidos/dbpKV/invitacion" target="_blank">Skydive in Mexico 🪂🇲🇽</a></p>
+    </footer>
 
     <script>
       let scene, camera, renderer, player;
@@ -381,8 +410,8 @@ async function unlockAudio() {
         directionalLight.shadow.mapSize.height = 2048;
         scene.add(directionalLight);
 
-        // Create player (skydrop)
-        createPlayer();
+        // Create player (skydiver)
+        createSkydiver();
 
         // Create orbs
         createOrbs();
@@ -422,23 +451,165 @@ async function unlockAudio() {
 
       }
 
-      function createPlayer() {
-        const playerGeometry = new THREE.ConeGeometry(0.5, 2, 8);
-        const playerMaterial = new THREE.MeshLambertMaterial({
-          color: 0xff6b6b,
-        });
-        player = new THREE.Mesh(playerGeometry, playerMaterial);
-        player.position.set(0, 0, 0);
-        player.castShadow = true;
-        scene.add(player);
+      function createSkydiver() {
+        // Root that your game moves/rotates (leave this as "player")
+        const root = new THREE.Group();
+        root.position.set(0, 0, 0);
 
-        // Add parachute cord effect
-        const cordGeometry = new THREE.CylinderGeometry(0.02, 0.02, 3, 8);
-        const cordMaterial = new THREE.MeshLambertMaterial({ color: 0x8b4513 });
-        const cord = new THREE.Mesh(cordGeometry, cordMaterial);
-        cord.position.set(0, 1.5, 0);
-        player.add(cord);
+        // Body group rotated to belly-to-earth (face toward -Y)
+        const skydiver = new THREE.Group();
+        skydiver.rotation.x = Math.PI / 2; // belly-to-earth orientation
+        skydiver.rotation.z = Math.PI; // face forward
+        root.add(skydiver);
+
+        // Materials
+        const suitMat   = new THREE.MeshLambertMaterial({ color: 0x1565c0 }); // suit
+        const accentMat = new THREE.MeshLambertMaterial({ color: 0x0d47a1 }); // gloves/boots
+        const rigMat    = new THREE.MeshLambertMaterial({ color: 0x333333 }); // parachute rig
+        const helmetMat = new THREE.MeshLambertMaterial({ color: 0xffffff }); // helmet
+        const visorMat  = new THREE.MeshLambertMaterial({ color: 0x88c9ff, transparent: true, opacity: 0.8 });
+
+        // Torso
+        const torso = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.0, 0.35), suitMat);
+        torso.position.set(0, 0.1, 0);
+        skydiver.add(torso);
+
+        // Head + visor (front is +Z)
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), helmetMat);
+        head.position.set(0, 0.75, 0.02);
+        skydiver.add(head);
+
+        const visor = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.12, 0.02), visorMat);
+        visor.position.set(0, 0.75, 0.17);
+        skydiver.add(visor);
+
+        // Parachute rig (on the back, -Z)
+        const rig = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.15), rigMat);
+        rig.position.set(0, 0.1, -0.25);
+        skydiver.add(rig);
+
+        // Arm builder (shoulder pivot -> upper -> elbow pivot -> forearm -> hand)
+        // Arm builder (shoulder pivot -> upper group -> elbow pivot -> forearm group -> wrist pivot -> hand)
+        function buildArm(side = 1) {
+          const shoulder = new THREE.Group();
+          shoulder.position.set(0.38 * side, 0.4, 0);
+
+          // --- Upper arm (pivot at shoulder) ---
+          const upperLen = 0.6;
+          const upperG = new THREE.Group();               // transform group for upper arm
+          shoulder.add(upperG);
+
+          const upper = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.07, 0.07, upperLen, 8),
+            suitMat
+          );
+          upper.rotation.z = Math.PI / 2;                 // cylinder axis -> X
+          upper.position.x = (upperLen / 2) * side;       // half-length from shoulder pivot
+          upperG.add(upper);
+
+          // --- Elbow pivot at the end of the upper arm ---
+          const elbow = new THREE.Group();
+          elbow.position.x = upperLen * side;             // at upper tip
+          shoulder.add(elbow);
+
+          // --- Forearm (pivot at elbow) ---
+          const foreLen = 0.5;
+          const foreG = new THREE.Group();
+          elbow.add(foreG);
+
+          const fore = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.06, 0.06, foreLen, 8),
+            suitMat
+          );
+          fore.rotation.z = Math.PI / 2;                  // axis -> X
+          fore.position.x = (foreLen / 2) * side;         // half-length from elbow pivot
+          foreG.add(fore);
+
+          // --- Wrist pivot at the end of the forearm ---
+          const wrist = new THREE.Group();
+          wrist.position.x = foreLen * side;              // at forearm tip
+          foreG.add(wrist);
+
+          // Hand (slightly longer/wider than before; oriented to airflow)
+          const hand = new THREE.Mesh(
+            new THREE.BoxGeometry(0.18, 0.10, 0.22),
+            accentMat
+          );
+          hand.position.set(0.05 * side, 0, 0.0);         // tiny forward bias
+          wrist.add(hand);
+
+          // --- Pose: belly-fly (box) ---
+          shoulder.rotation.x = 0.35;                     // arms slightly forward
+          shoulder.rotation.z = 0.95 * side;              // wide
+
+          // Natural elbow bend & bring forearms a touch toward +Z (into the wind)
+          elbow.rotation.x = THREE.MathUtils.degToRad(12);     // flex
+          elbow.rotation.y = THREE.MathUtils.degToRad(10) * side;
+
+          // Small inward cant of forearm; subtle wrist pitch/pronation
+          foreG.rotation.z = THREE.MathUtils.degToRad(8) * side;
+          wrist.rotation.y = THREE.MathUtils.degToRad(8) * side;
+          wrist.rotation.z = THREE.MathUtils.degToRad(-6);
+
+          return { shoulder, elbow };
+        }
+
+
+        // Leg builder (hip pivot -> thigh -> knee pivot -> shin -> boot)
+        function buildLeg(side = 1) {
+          const hip = new THREE.Group();
+          hip.position.set(0.18 * side, -0.5, 0.02);
+
+          const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.7, 8), suitMat);
+          thigh.position.y = -0.35;
+          hip.add(thigh);
+
+          const knee = new THREE.Group();
+          knee.position.set(0, -0.7, 0);
+
+          const shin = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.6, 8), suitMat);
+          shin.position.y = -0.3;
+          knee.add(shin);
+
+          const boot = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.12, 0.3), accentMat);
+          boot.position.set(0, -0.62, 0.05);
+          knee.add(boot);
+
+          // Belly-fly stance: legs apart, knees slightly bent, toes trailing
+          hip.rotation.x = -0.1;                 // tiny hip arch (hips down)
+          hip.rotation.z = 0.35 * side;          // spread
+          knee.rotation.x = 0.35;                // bend knees
+
+          hip.add(knee);
+          return { hip, knee };
+        }
+
+        // Build limbs and add to skydiver (so they stay in belly orientation)
+        const LArm = buildArm(+1);
+        const RArm = buildArm(-1);
+        skydiver.add(LArm.shoulder, RArm.shoulder);
+
+        const LLeg = buildLeg(+1);
+        const RLeg = buildLeg(-1);
+        skydiver.add(LLeg.hip, RLeg.hip);
+
+        // Shadows
+        skydiver.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+
+        // Keep optional handles for limb animation (if you added it elsewhere)
+        root.userData.parts = {
+          lShoulder: LArm.shoulder, rShoulder: RArm.shoulder,
+          lElbow: LArm.elbow,       rElbow: RArm.elbow,
+          lHip: LLeg.hip,           rHip: RLeg.hip,
+          lKnee: LLeg.knee,         rKnee: RLeg.knee
+        };
+
+        // Finalize
+        player = root;
+        scene.add(player);
       }
+
+
 
       function createOrbs() {
         for (let i = 0; i < ORB_COUNT; i++) {
@@ -620,6 +791,81 @@ async function unlockAudio() {
         camera.position.y = player.position.y + 10;
         camera.position.z = player.position.z + 5;
         camera.lookAt(player.position.x, player.position.y, player.position.z);
+      
+        // --- Tracking pose blend (belly -> track) with subtle arm flutter ---
+        if (player.userData && player.userData.parts) {
+          const { lShoulder, rShoulder, lElbow, rElbow, lHip, rHip, lKnee, rKnee } = player.userData.parts;
+
+          // helpers
+          const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+          const lerp = (a, b, t) => a + (b - a) * t;
+          const smoothstep = (e0, e1, x) => {
+            const t = clamp((x - e0) / (e1 - e0), 0, 1);
+            return t * t * (3 - 2 * t);
+          };
+
+          // input mapping
+          const forward = clamp(-moveZ, 0, 1);      // 0..1 only when pushing forward
+          const t = smoothstep(0.15, 0.9, forward); // blend belly→track
+          const bank = clamp(moveX, -1, 1);
+
+          // time-based flutter
+          const time = performance.now() * 0.004;
+          const flutterScale = 1 - 0.6 * t; // less flutter when tracking (sleeker body)
+          const A_shX = THREE.MathUtils.degToRad(4) * flutterScale; // shoulder pitch wobble
+          const A_shY = THREE.MathUtils.degToRad(2) * flutterScale; // tiny yaw wiggle
+          const A_elX = THREE.MathUtils.degToRad(5) * flutterScale; // elbow flex
+
+          // Belly (base) vs Track (target) angles
+          const base = {
+            shX: 0.35,              // shoulders slightly forward
+            shZ: 0.95,              // arms wide
+            elX: THREE.MathUtils.degToRad(12),
+            elY: THREE.MathUtils.degToRad(10),
+            hipX: -0.10,
+            hipZ: 0.35,
+            kneeX: 0.35
+          };
+          const track = {
+            shX: -0.55,             // sweep arms back
+            shZ: 0.15,              // closer to body
+            elX: THREE.MathUtils.degToRad(0),   // straighter arms
+            elY: THREE.MathUtils.degToRad(0),
+            hipX: -0.25,            // slight hips-down
+            hipZ: 0.15,             // legs nearer midline
+            kneeX: 0.15             // straighter knees
+          };
+
+          function applySide(side, joints) {
+            const s = side; // +1 = left, -1 = right
+            const { shoulder, elbow, hip, knee } = joints;
+
+            // Blend pose first
+            shoulder.rotation.x = lerp(base.shX, track.shX, t);
+            shoulder.rotation.z = lerp(base.shZ * s, track.shZ * s, t) + (-bank) * 0.15 * s;
+
+            elbow.rotation.x = lerp(base.elX, track.elX, t);
+            elbow.rotation.y = lerp(base.elY * s, track.elY * s, t);
+
+            hip.rotation.x = lerp(base.hipX, track.hipX, t);
+            hip.rotation.z = lerp(base.hipZ * s, track.hipZ * s, t) + (-bank) * 0.15 * s;
+            knee.rotation.x = lerp(base.kneeX, track.kneeX, t);
+
+            // --- Add subtle flutter (freefall buffeting) ---
+            // Phase arms slightly out of sync for natural motion
+            const phase = time + (s > 0 ? 0 : Math.PI * 0.6);
+
+            // Shoulders: tiny pitch + yaw wobble
+            shoulder.rotation.x += Math.sin(phase * 1.3) * A_shX;
+            shoulder.rotation.y = (Math.sin(phase * 1.7) * A_shY); // centered around ~0
+
+            // Elbows: gentle flex
+            elbow.rotation.x += Math.sin(phase * 1.9) * A_elX;
+          }
+
+          applySide(+1, { shoulder: lShoulder, elbow: lElbow, hip: lHip, knee: lKnee });
+          applySide(-1, { shoulder: rShoulder, elbow: rElbow, hip: rHip, knee: rKnee });
+        }
       }
 
       function updateOrbs() {
