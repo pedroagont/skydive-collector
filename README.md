@@ -1,12 +1,12 @@
-# 🪂 Skydrop Collector  
+# 🪂 Skydive Collector  
 
 A **fun 3D browser game** built with [Three.js](https://threejs.org/) where you skydive from 17,000 ft and try to collect balloons to get the highest score possible.  
 
 Play with **WASD/Arrow keys on desktop** or **tilt controls on mobile** for an immersive freefall experience.  
 
-> 🕹️ [Playable Demo](https://skydrop-collector.onrender.com)
+> 🕹️ [Playable Demo](https://skydive-collector.onrender.com)
 
-![Skydrop Collector Game](preview.jpg)
+![Skydive Collector Game](preview.jpg)
 
 ---
 
