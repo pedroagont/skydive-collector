@@ -153,7 +153,7 @@
     /* Parachute deploy button */
     #chuteBtnWrap {
       position: absolute;
-      bottom: 60px;
+      bottom: 200px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 150;
@@ -166,7 +166,7 @@
       border: 3px solid #fff;
       color: white;
       padding: 18px 36px;
-      font-size: 22px;
+      font-size: 1em;
       font-weight: bold;
       border-radius: 50px;
       cursor: pointer;
@@ -193,7 +193,7 @@
 
     #chuteHint {
       color: rgba(255, 255, 255, 0.8);
-      font-size: 13px;
+      font-size: 1em;
       margin-top: 6px;
       text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
     }
@@ -225,7 +225,7 @@
       right: 38px;
       top: 80px;
       color: rgba(255, 255, 255, 0.7);
-      font-size: 11px;
+      font-size: 1.2em;
       writing-mode: vertical-rl;
       text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
     }
@@ -262,8 +262,8 @@
       justify-content: space-between;
       align-items: center;
       width: 90%;
-      font-size: 0.8em;
       text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+      font-weight: bold;
     }
 
     footer a {
@@ -294,7 +294,7 @@
     </div>
 
     <div id="lzHud"
-      style="display:none; position:absolute; bottom:130px; left:50%; transform:translateX(-50%); z-index:150; text-align:center; color:white; text-shadow:1px 1px 4px rgba(0,0,0,0.8);">
+      style="display:none; position:absolute; bottom:500px; left:50%; transform:translateX(-50%); z-index:150; text-align:center; color:white; text-shadow:1px 1px 4px rgba(0,0,0,0.8);">
       <div id="lzArrow" style="font-size:28px; line-height:1;">&#8593;</div>
       <div id="lzDist" style="font-size:13px; margin-top:2px; letter-spacing:1px;">LZ: ---m</div>
     </div>
@@ -306,12 +306,12 @@
 
     <!-- Parachute button -->
     <div id="chuteBtnWrap">
-      <button id="chuteBtn" onclick="deployChute()">&#127808; DEPLOY CHUTE</button>
+      <button id="chuteBtn" onclick="deployChute()">🪂 DEPLOY CHUTE</button>
       <div id="chuteHint">Deploy before hitting ground!</div>
     </div>
 
     <div id="instructions">
-      <h2>&#129744; Skydive Collector</h2>
+      <h2>🪂 Skydive Collector</h2>
       <p>Fly through the sky and collect the balloons while falling.</p>
       <p><strong>Desktop:</strong> Use WASD or Arrow Keys</p>
       <p><strong>Mobile:</strong> Tilt your device</p>
@@ -335,8 +335,7 @@
 
   <footer>
     <p>Created by <a href="https://github.com/pedroagont" target="_blank">@pedroagont</a></p>
-    <p><a href="https://reservaparacaidismo.com/referidos/dbpKV/invitacion" target="_blank">Skydive in Mexico
-        &#129744;&#127474;&#127480;</a></p>
+    <p><a href="https://reservaparacaidismo.com/referidos/dbpKV/invitacion" target="_blank">Skydive in Mexico 🪂🇲🇽</a></p>
   </footer>
 
   <script>
@@ -353,9 +352,11 @@
     let chuteDeployed = false;
     let chuteOpening = false;
     let chuteOpenProgress = 0;
+    let chutePoseBlend = 0;  // 0=freefall belly, 1=seated under canopy
+
     let chuteCanopy = null;
-    let currentFallSpeed = 7;
-    const FREEFALL_SPEED = 7;
+    let currentFallSpeed = 3;
+    const FREEFALL_SPEED = 10;
     const CHUTE_SPEED = 0.85;
     const CHUTE_DEPLOY_ALT = 3500;   // ft at which button appears
     const CHUTE_WARN_ALT = 1500;     // ft — warning flash
@@ -708,7 +709,7 @@
       scene = new THREE.Scene();
       scene.fog = new THREE.Fog(0x87ceeb, 100, 2000);
 
-      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 3000);
+      camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 3000);
       camera.position.set(0, 0, 5);
 
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -1192,7 +1193,7 @@
         const A_shY = THREE.MathUtils.degToRad(2) * flutterScale;
         const A_elX = THREE.MathUtils.degToRad(5) * flutterScale;
         const base = { shX: 0.35, shZ: 0.95, elX: THREE.MathUtils.degToRad(12), elY: THREE.MathUtils.degToRad(10), hipX: -0.10, hipZ: 0.35, kneeX: 0.35 };
-        const track = { shX: -1.55, shZ: -0.65, elX: 0, elY: 0, hipX: -0.25, hipZ: 0.15, kneeX: 1.15 };
+        const track = { shX: 0.55, shZ: -0.95, elX: 0, elY: 0, hipX: -0.25, hipZ: 0.15, kneeX: 1.15 };
 
         function applySide(side, joints) {
           const s = side;
@@ -1416,7 +1417,7 @@
       const dz = landingZone.z - player.position.z;
       const dist = Math.sqrt(dx * dx + dz * dz);
 
-      document.getElementById("lzDist").textContent = "LZ: " + Math.round(dist) + "m";
+      document.getElementById("lzDist").textContent = "Target: " + Math.round(dist) + "m";
 
       // Rotate arrow to point toward LZ (relative to camera facing -Z)
       // atan2(dx, -dz) gives angle from camera-forward to target
