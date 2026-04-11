@@ -64,134 +64,110 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
       body {
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
+        margin: 0; padding: 0; overflow: hidden;
         font-family: "Arial", sans-serif;
-        background: linear-gradient(
-          180deg,
-          #87ceeb 0%,
-          #87ceeb 60%,
-          #228b22 100%
-        );
+        background: linear-gradient(180deg, #87ceeb 0%, #87ceeb 60%, #228b22 100%);
       }
-
-      #gameContainer {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
-      }
-
+      #gameContainer { position: relative; width: 100vw; height: 100vh; }
       #ui {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        z-index: 100;
-        color: white;
-        font-size: 20px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        position: absolute; top: 20px; left: 20px; z-index: 100;
+        color: white; font-size: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
       }
-
+      #altitude {
+        position: absolute; top: 20px; right: 20px;
+        color: white; font-size: 18px; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        text-align: right;
+      }
+      #altWarning {
+        display: none; color: #ff4444; font-weight: bold;
+        animation: pulse 0.6s infinite; margin-top: 4px;
+      }
       #instructions {
-        position: absolute;
-        top: 50%;
-        left: 50%;
+        position: absolute; top: 50%; left: 50%;
         transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 30px;
-        border-radius: 15px;
-        text-align: center;
-        z-index: 200;
-        max-width: 400px;
+        background: rgba(0,0,0,0.85); color: white;
+        padding: 30px; border-radius: 15px;
+        text-align: center; z-index: 200; max-width: 420px;
       }
-
       #startButton, #restartButton {
         background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-        border: none;
-        color: white;
-        padding: 15px 30px;
-        font-size: 18px;
-        border-radius: 30px;
-        cursor: pointer;
-        margin-top: 20px;
-        transition: transform 0.2s;
-        font-weight: bold;
+        border: none; color: white; padding: 15px 30px;
+        font-size: 18px; border-radius: 30px; cursor: pointer;
+        margin-top: 20px; transition: transform 0.2s; font-weight: bold;
       }
-
-      #startButton:hover, #restartButton:hover {
-        transform: scale(1.05);
-      }
-
+      #startButton:hover, #restartButton:hover { transform: scale(1.05); }
       #gameOver {
-        position: absolute;
-        top: 50%;
-        left: 50%;
+        position: absolute; top: 50%; left: 50%;
         transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.9);
-        color: white;
-        padding: 40px;
-        border-radius: 15px;
-        text-align: center;
-        z-index: 200;
-        display: none;
+        background: rgba(0,0,0,0.92); color: white;
+        padding: 40px; border-radius: 15px;
+        text-align: center; z-index: 200; display: none; min-width: 300px;
+      }
+      #gameOver h2 { margin-top: 0; font-size: 26px; }
+      #landingResult { font-size: 22px; margin: 8px 0; }
+      #bonusText { font-size: 15px; color: #aaa; margin-bottom: 4px; }
+
+      /* Parachute deploy button */
+      #chuteBtnWrap {
+        position: absolute; bottom: 60px; left: 50%;
+        transform: translateX(-50%);
+        z-index: 150; display: none; text-align: center;
+      }
+      #chuteBtn {
+        background: linear-gradient(135deg, #e53935, #c62828);
+        border: 3px solid #fff; color: white;
+        padding: 18px 36px; font-size: 22px; font-weight: bold;
+        border-radius: 50px; cursor: pointer;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        transition: transform 0.15s, background 0.2s;
+        letter-spacing: 1px;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+      }
+      #chuteBtn:hover { transform: scale(1.06); }
+      #chuteBtn:active { transform: scale(0.97); }
+      #chuteBtn.deployed {
+        background: linear-gradient(135deg, #388e3c, #1b5e20);
+        cursor: default; transform: scale(1);
+      }
+      #chuteHint {
+        color: rgba(255,255,255,0.8); font-size: 13px;
+        margin-top: 6px; text-shadow: 1px 1px 3px rgba(0,0,0,0.6);
       }
 
-      .pulse {
-        animation: pulse 2s infinite;
+      /* Altitude bar */
+      #altBar {
+        position: absolute; right: 20px; top: 80px;
+        width: 12px; height: 200px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 6px; border: 1px solid rgba(255,255,255,0.4);
+        overflow: hidden;
+      }
+      #altFill {
+        position: absolute; bottom: 0; width: 100%;
+        background: linear-gradient(to top, #ff4444, #ffaa00, #44cc44);
+        border-radius: 6px; transition: height 0.1s;
+      }
+      #altBarLabel {
+        position: absolute; right: 38px; top: 80px;
+        color: rgba(255,255,255,0.7); font-size: 11px;
+        writing-mode: vertical-rl; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
       }
 
       @keyframes pulse {
-        0% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.7;
-        }
-        100% {
-          opacity: 1;
-        }
-      }
-
-      #altitude {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        color: white;
-        font-size: 18px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-      }
-
-      #instructions, #gameOver {
-          min-width: 280px;
+        0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
       }
 
       footer {
-        position:absolute;
-        bottom:20px;
-        left:50%;
-        transform:translateX(-50%);
-        color:white;
-        text-align:center;
-        
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        width: 90%;
-        font-size: 0.8em;
-        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+        position: absolute; bottom: 14px; left: 50%;
+        transform: translateX(-50%);
+        color: white; text-align: center;
+        display: flex; justify-content: space-between;
+        align-items: center; width: 90%; font-size: 0.8em;
+        text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
       }
-
-    footer a {
-      color: white;
-      transition: color 0.2s;
-    }
-
-    footer a:hover {
-      color: #ff6b6b;
-    }
-
+      footer a { color: white; transition: color 0.2s; }
+      footer a:hover { color: #ff6b6b; }
     </style>
   </head>
   <body>
@@ -206,23 +182,39 @@
 
       <div id="altitude">
         Altitude: <span id="altitudeValue">17000</span> ft
+        <div id="altWarning">&#9660; PULL CHUTE!</div>
+      </div>
+
+      <div id="altBarLabel">altitude</div>
+      <div id="altBar"><div id="altFill" style="height:100%"></div></div>
+
+      <!-- Parachute button -->
+      <div id="chuteBtnWrap">
+        <button id="chuteBtn" onclick="deployChute()">&#127808; DEPLOY CHUTE</button>
+        <div id="chuteHint">Deploy before hitting ground!</div>
       </div>
 
       <div id="instructions">
-        <h2>🪂 Skydive Collector</h2>
-        <p>Fly through the sky and collect the balloons while falling</p>
+        <h2>&#129744; Skydive Collector</h2>
+        <p>Fly through the sky and collect the balloons while falling.</p>
         <p><strong>Desktop:</strong> Use WASD or Arrow Keys</p>
         <p><strong>Mobile:</strong> Tilt your device</p>
+        <hr style="border-color:rgba(255,255,255,0.2); margin:14px 0">
+        <p style="font-size:14px; color:#ccc;">
+          &#127808; Deploy your parachute below <strong>5,000 ft</strong> to land safely.<br>
+          Pull early for bonus points — wait too long and it's a hard landing!
+        </p>
         <button id="startButton">Start Skydiving!</button>
       </div>
 
       <div id="gameOver">
-        <h2>Mission Complete!</h2>
-        <p>Final Score: <span id="finalScore">0</span></p>
-        <p>Balloons Collected: <span id="orbsCollected">0</span></p>
+        <h2 id="gameOverTitle">Mission Complete!</h2>
+        <div id="landingResult">&#129344; Nice landing!</div>
+        <p id="bonusText"></p>
+        <p>Balloons: <strong><span id="orbsCollected">0</span></strong></p>
+        <p style="font-size:22px; font-weight:bold;">Total Score: <span id="finalScore">0</span></p>
         <button id="restartButton" onclick="restartGame()">Jump Again!</button>
       </div>
-
     </main>
 
 
@@ -240,6 +232,18 @@
       let altitude = 17000;
       let speed = 200;
       let orbsCollectedCount = 0;
+
+      // Parachute state
+      let chuteDeployed = false;
+      let chuteOpening = false;
+      let chuteOpenProgress = 0;
+      let chuteCanopy = null;
+      let currentFallSpeed = 3;
+      const FREEFALL_SPEED = 3;
+      const CHUTE_SPEED = 0.35;
+      const CHUTE_DEPLOY_ALT = 5000;   // ft at which button appears
+      const CHUTE_WARN_ALT = 1500;     // ft — warning flash
+      const CHUTE_FATAL_ALT = 200;     // ft — if not deployed, hard landing
 
       // --- Tilt calibration & smoothing ---
       let deviceOrientation = { beta: 0, gamma: 0 };
@@ -269,7 +273,7 @@
       const GAME_HEIGHT = 17000;
 
       // Audio
-      let bgMusic, finishSound, orbSound;
+      let bgMusic, finishSound, orbSound, chuteSound;
       const ORB_POOL_SIZE = 6;
       const orbPool = [];
 
@@ -277,8 +281,10 @@
         bgMusic = new Audio("audio/background.mp3");
         finishSound = new Audio("audio/finish.mp3");
         orbSound = new Audio("audio/orb.mp3");
+        chuteSound = new Audio("audio/finish.mp3"); // reuse finish sound for chute
 
-        [bgMusic, finishSound, orbSound].forEach(a => {
+
+        [bgMusic, finishSound, orbSound, chuteSound].forEach(a => {
           a.preload = "auto";
           a.load();
         });
@@ -415,8 +421,8 @@ async function unlockAudio() {
         const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
         directionalLight.position.set(100, 100, 50);
         directionalLight.castShadow = true;
-        directionalLight.shadow.mapSize.width = 2048;
-        directionalLight.shadow.mapSize.height = 2048;
+        // directionalLight.shadow.mapSize.width = 2048;
+        // directionalLight.shadow.mapSize.height = 2048;
         scene.add(directionalLight);
 
         // Create player (skydiver)
@@ -456,6 +462,13 @@ async function unlockAudio() {
           document.getElementById("calibrateBtn").textContent = "Hold still…";
           await autoCalibrate();
           document.getElementById("calibrateBtn").textContent = old;
+        });
+
+        // Keyboard shortcut for chute
+        document.addEventListener("keydown", (e) => {
+          if ((e.code === "Space" || e.code === "KeyP") && gameStarted && !chuteDeployed) {
+            deployChute();
+          }
         });
 
       }
@@ -618,6 +631,116 @@ async function unlockAudio() {
         scene.add(player);
       }
 
+// Build a rectangular ram-air style canopy above the player
+      function buildChuteCanopy() {
+        const group = new THREE.Group();
+ 
+        const W = 20;    // total span left-right
+        const D = 9;     // front-to-back depth
+        const H = 2.5;   // cell inflation height
+        const CELLS = 7;
+        const cellW = W / CELLS;
+        const colors = [0xff2222, 0xffffff];
+ 
+        for (let i = 0; i < CELLS; i++) {
+          const mat = new THREE.MeshLambertMaterial({
+            color: colors[i % 2], transparent: true, opacity: 0.9, side: THREE.DoubleSide
+          });
+          const cell = new THREE.Mesh(new THREE.BoxGeometry(cellW, H, D), mat);
+          const xPos = -W / 2 + cellW * i + cellW / 2;
+          // Slight arc: edge cells drop a little (ram-air bow shape)
+          const arcDrop = Math.pow(xPos / (W / 2), 2) * 1.2;
+          cell.position.set(xPos, -arcDrop, 0);
+          group.add(cell);
+ 
+          // Rib seam lines between cells
+          if (i > 0) {
+            const seamX = -W / 2 + cellW * i;
+            const seamDrop = Math.pow(seamX / (W / 2), 2) * 1.2;
+            const ribMat = new THREE.LineBasicMaterial({ color: 0x888888 });
+            const pts = [
+              new THREE.Vector3(seamX, H / 2 - seamDrop, -D / 2),
+              new THREE.Vector3(seamX, H / 2 - seamDrop,  D / 2),
+            ];
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), ribMat));
+          }
+        }
+ 
+        // Suspension lines from canopy underside down to harness point
+        const lineMat = new THREE.LineBasicMaterial({ color: 0xdddddd });
+        const lineCount = 8;
+        for (let i = 0; i < lineCount; i++) {
+          const t = i / (lineCount - 1);
+          const attachX = -W / 2 + t * W;
+          const attachZ = (i % 2 === 0) ? -D / 2 : D / 2;
+          const arcDrop = Math.pow(attachX / (W / 2), 2) * 1.2;
+          const pts = [
+            new THREE.Vector3(attachX, -H / 2 - arcDrop, attachZ),
+            new THREE.Vector3(0, -12, 0),
+          ];
+          group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), lineMat));
+        }
+ 
+        group.position.y = 14;
+        group.scale.set(0, 0, 0);
+        return group;
+      }
+
+      function deployChute() {
+        if (chuteDeployed || !gameStarted) return;
+        chuteDeployed = true;
+        chuteOpening = true;
+        chuteOpenProgress = 0;
+
+        // Update button state
+        const btn = document.getElementById("chuteBtn");
+        btn.textContent = "✓ CHUTE OPEN";
+        btn.classList.add("deployed");
+        btn.disabled = true;
+        document.getElementById("chuteHint").textContent = "Steering toward landing zone...";
+
+        // Add canopy to player
+        chuteCanopy = buildChuteCanopy();
+        player.add(chuteCanopy);
+
+        // Animate arms up to grab risers
+        if (player.userData && player.userData.parts) {
+          const { lShoulder, rShoulder } = player.userData.parts;
+          lShoulder.rotation.x = -10.2;
+          lShoulder.rotation.z = 0.3;
+          rShoulder.rotation.x = -10.2;
+          rShoulder.rotation.z = -0.3;
+        }
+
+        // Play a whoosh / chute sound
+        try {
+          const whoosh = new Audio("audio/finish.mp3");
+          whoosh.volume = 0.5;
+          whoosh.play().catch(() => {});
+        } catch(_) {}
+      }
+
+      function updateChuteAnimation() {
+        if (!chuteDeployed || !chuteCanopy) return;
+
+        // Open animation
+        if (chuteOpening) {
+          chuteOpenProgress = Math.min(1, chuteOpenProgress + 0.04);
+          const s = chuteOpenProgress;
+          chuteCanopy.scale.set(s, s, s);
+          if (chuteOpenProgress >= 1) chuteOpening = false;
+        }
+
+        // Gentle sway
+        const t = performance.now() * 0.001;
+        chuteCanopy.rotation.x = Math.sin(t * 0.7) * 0.04;
+        chuteCanopy.rotation.z = Math.cos(t * 0.5) * 0.03;
+
+        // Slow fall speed gradually
+        if (currentFallSpeed > CHUTE_SPEED) {
+          currentFallSpeed = Math.max(CHUTE_SPEED, currentFallSpeed * 0.94);
+        }
+      }
 
 
       function createOrbs() {
@@ -734,6 +857,8 @@ async function unlockAudio() {
         document.getElementById("instructions").style.display = "none";
         await unlockAudio();          // << crucial
         gameStarted = true;
+        currentFallSpeed = FREEFALL_SPEED;
+
         try { await bgMusic.play(); } catch (_) {}
         await autoCalibrate();        // from previous fix
         animate();
@@ -779,30 +904,37 @@ async function unlockAudio() {
         if (keys["ArrowUp"] || keys["KeyW"]) moveZ = -1;
         if (keys["ArrowDown"] || keys["KeyS"]) moveZ = 1;
 
-        // Apply movement
-        player.position.x += moveX * 3;
-        player.position.z += moveZ * 3;
+        // Apply movement, reduce steering when chute is open
+        const steerFactor = chuteDeployed ? 0.4 : 1;
+        player.position.x += moveX * 3 * steerFactor;
+        player.position.z += moveZ * 3 * steerFactor;
 
         // Keep player in bounds
         player.position.x = Math.max(-300, Math.min(300, player.position.x));
         player.position.z = Math.max(-300, Math.min(300, player.position.z));
 
         // Continuous falling
-        player.position.y -= FALL_SPEED;
-        altitude = Math.max(0, altitude - FALL_SPEED * 5);
+        player.position.y -= currentFallSpeed;
+        altitude = Math.max(0, altitude - currentFallSpeed * 5);
 
         // Tilt player based on movement
-        player.rotation.z = -moveX * 0.6;
-        player.rotation.x = moveZ * 0.4;
+        if (!chuteDeployed) {
+          player.rotation.z = -moveX * 0.6;
+          player.rotation.x = moveZ * 0.4;
+        } else {
+          // Upright under chute
+          player.rotation.z *= 0.9;
+          player.rotation.x *= 0.9;
+        }
 
         // Update camera to follow player
         camera.position.x = player.position.x;
-        camera.position.y = player.position.y + 10;
-        camera.position.z = player.position.z + 5;
+        camera.position.y = player.position.y + (chuteDeployed ? 20 : 10);
+        camera.position.z = player.position.z + (chuteDeployed ? 15 : 5);
         camera.lookAt(player.position.x, player.position.y, player.position.z);
-      
-        // --- Tracking pose blend (belly -> track) with subtle arm flutter ---
-        if (player.userData && player.userData.parts) {
+
+        // --- Tracking pose blend (belly -> track) with subtle arm flutter (freefall only) ---
+        if (!chuteDeployed && player.userData && player.userData.parts) {
           const { lShoulder, rShoulder, lElbow, rElbow, lHip, rHip, lKnee, rKnee } = player.userData.parts;
 
           // helpers
@@ -971,11 +1103,32 @@ async function unlockAudio() {
       }
 
       function updateUI() {
-        document.getElementById("speed").textContent = Math.floor(
-          speed + Math.random() * 10
-        );
+        const altPct = altitude / GAME_HEIGHT;
+        document.getElementById("altFill").style.height = (altPct * 100) + "%";
+
+         const displaySpeed = chuteDeployed
+          ? Math.floor(20 + Math.random() * 5)
+          : Math.floor(speed + Math.random() * 10);
+        document.getElementById("speed").textContent = displaySpeed;
         document.getElementById("altitudeValue").textContent =
           Math.floor(altitude);
+
+
+        // Show chute button below deploy altitude
+        const chuteBtnWrap = document.getElementById("chuteBtnWrap");
+        if (altitude <= CHUTE_DEPLOY_ALT && !chuteDeployed) {
+          chuteBtnWrap.style.display = "block";
+        } else if (chuteDeployed) {
+          chuteBtnWrap.style.display = "block"; // keep visible to show status
+        }
+
+        // Warning flash
+        const warn = document.getElementById("altWarning");
+        if (altitude <= CHUTE_WARN_ALT && !chuteDeployed) {
+          warn.style.display = "block";
+        } else {
+          warn.style.display = "none";
+        }
 
         // Check game end condition
         if (altitude <= 0) {
@@ -985,15 +1138,42 @@ async function unlockAudio() {
 
       async function endGame() {
         gameStarted = false;
+
+        // Determine landing quality
+        let landingBonus = 0;
+        let landingTitle = "";
+        let landingEmoji = "";
+        let bonusDesc = "";
+
+        if (chuteDeployed) {
+          if (altitude <= 0 && chuteOpenProgress >= 1) {
+            // Soft landing — bonus scales with how early they pulled
+            const altAtDeploy = altitude; // already 0 here, use chuteOpenProgress as proxy
+            landingBonus = 500;
+            landingTitle = "Perfect Landing!";
+            landingEmoji = "🟢";
+            bonusDesc = `Chute bonus: +${landingBonus} pts`;
+          }
+        } else {
+          // Hard landing — no chute
+          landingBonus = -200;
+          landingTitle = "Hard Landing!";
+          landingEmoji = "💥";
+          bonusDesc = `No chute penalty: ${landingBonus} pts`;
+        }
+
+        score = Math.max(0, score + landingBonus);
+
+        document.getElementById("gameOverTitle").textContent = chuteDeployed ? "Mission Complete!" : "Crash Landing!";
+        document.getElementById("landingResult").textContent = landingEmoji + " " + landingTitle;
+        document.getElementById("bonusText").textContent = bonusDesc;
         document.getElementById("finalScore").textContent = score;
         document.getElementById("orbsCollected").textContent = orbsCollectedCount;
         document.getElementById("gameOver").style.display = "block";
+        document.getElementById("chuteBtnWrap").style.display = "none";
 
         try { bgMusic.pause(); } catch(_) {}
-        try {
-          finishSound.currentTime = 0;
-          await finishSound.play();
-        } catch(_) {}
+        try { finishSound.currentTime = 0; await finishSound.play(); } catch(_) {}
       }
 
       function restartGame() {
@@ -1002,24 +1182,45 @@ async function unlockAudio() {
         altitude = 17000;
         orbsCollectedCount = 0;
         gameStarted = false;
+        chuteDeployed = false;
+        chuteOpening = false;
+        chuteOpenProgress = 0;
+        currentFallSpeed = FREEFALL_SPEED;
+
+        if (chuteCanopy) { player.remove(chuteCanopy); chuteCanopy = null; }
+
+        // Reset arm pose
+        if (player.userData && player.userData.parts) {
+          const { lShoulder, rShoulder } = player.userData.parts;
+          lShoulder.rotation.x = 0.35;
+          lShoulder.rotation.z = 0.95;
+          rShoulder.rotation.x = 0.35;
+          rShoulder.rotation.z = -0.95;
+        }
 
         // Reset player position
         player.position.set(0, 0, 0);
+        player.rotation.set(0, 0, 0);
 
         // Clear and recreate orbs
         orbs.forEach((orb) => scene.remove(orb));
         orbs = [];
         createOrbs();
 
-        // Hide game over screen
-        document.getElementById("gameOver").style.display = "none";
-
-        // Show instructions again
-        document.getElementById("instructions").style.display = "block";
-
         // Update UI
-        document.getElementById("score").textContent = score;
-      }
+        document.getElementById("gameOver").style.display = "none";
+        document.getElementById("instructions").style.display = "block";
+        document.getElementById("chuteBtnWrap").style.display = "none";
+        document.getElementById("altWarning").style.display = "none";
+
+        const btn = document.getElementById("chuteBtn");
+        btn.textContent = "🪂 DEPLOY CHUTE";
+        btn.classList.remove("deployed");
+        btn.disabled = false;
+        document.getElementById("chuteHint").textContent = "Deploy before hitting ground!";
+
+        document.getElementById("score").textContent = 0;
+        document.getElementById("altFill").style.height = "100%";      }
 
       function animate() {
         if (!gameStarted) return;
@@ -1027,6 +1228,7 @@ async function unlockAudio() {
         requestAnimationFrame(animate);
 
         updatePlayer();
+        updateChuteAnimation();
         updateOrbs();
         updateUI();
 
