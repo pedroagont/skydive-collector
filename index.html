@@ -976,7 +976,7 @@
 
       // Slow fall speed gradually
       if (currentFallSpeed > CHUTE_SPEED) {
-        currentFallSpeed = Math.max(CHUTE_SPEED, currentFallSpeed * 0.9);
+        currentFallSpeed = Math.max(CHUTE_SPEED, currentFallSpeed * 0.94);
       }
     }
 
@@ -1128,25 +1128,50 @@
           chuteCanopy.rotation.x += (chuteVelZ * CHUTE_CANOPY_TILT * 0.5 - chuteCanopy.rotation.x) * 0.1;
         }
 
-        // Animate toggle-pull arms: pulling a toggle dips that side's arm
+        // Blend toward seated harness pose
+        chutePoseBlend = Math.min(1, chutePoseBlend + 0.025);
+        const bp = chutePoseBlend;
+        const lerp = (a, b, t) => a + (b - a) * t;
+
         if (player.userData && player.userData.parts) {
-          const { lShoulder, rShoulder } = player.userData.parts;
+          const { lShoulder, rShoulder, lHip, rHip, lKnee, rKnee, skydiver } = player.userData.parts;
           const time = performance.now() * 0.001;
-          // Gentle idle sway on arms even when no input
+
+          // ── Rotate the whole skydiver sub-group upright ──────────────────
+          // belly pose: rotation.x = PI/2. Seated upright: rotation.x = 0
+          if (skydiver) {
+            skydiver.rotation.x = lerp(Math.PI / 2, 0, bp);
+            // keep facing forward (z=PI in belly, 0 when upright feels natural)
+            skydiver.rotation.z = lerp(Math.PI, 0, bp);
+          }
+
+          // ── Arms: reach up and slightly out to hold risers ────────────────
+          // Idle sway
           const idleSwayL = Math.sin(time * 0.8) * 0.04;
           const idleSwayR = Math.sin(time * 0.8 + Math.PI) * 0.04;
-          // Pull left toggle (lShoulder dips down) when moving left
-          const leftPull = Math.max(0, -chuteVelX) * 3.0;  // 0..~4.8 range
+
+          // Toggle pull from steering input
+          const leftPull = Math.max(0, -chuteVelX) * 3.0;
           const rightPull = Math.max(0, chuteVelX) * 3.0;
-          lShoulder.rotation.x = -1.2 + leftPull * 0.25 + idleSwayL;
-          rShoulder.rotation.x = -1.2 + rightPull * 0.25 + idleSwayR;
-          // Forward toggle pull: both arms pull down slightly
           const fwdPull = Math.max(0, chuteVelZ) * 2.5;
-          lShoulder.rotation.x -= fwdPull * 0.15;
-          rShoulder.rotation.x -= fwdPull * 0.15;
-          // Spread stays locked upward
-          lShoulder.rotation.z = 0.28 + idleSwayL * 0.5;
-          rShoulder.rotation.z = -0.28 - idleSwayR * 0.5;
+
+          // Seated riser pose: arms reach up-and-out (-X = up in local space after upright rotation)
+          const armUpL = lerp(0.35, -1.4, bp) + leftPull * 0.3 - fwdPull * 0.15 + idleSwayL;
+          const armUpR = lerp(0.35, -1.4, bp) + rightPull * 0.3 - fwdPull * 0.15 + idleSwayR;
+          lShoulder.rotation.x = armUpL;
+          rShoulder.rotation.x = armUpR;
+          // Arms flare slightly outward
+          lShoulder.rotation.z = lerp(0.95, 0.55, bp) + idleSwayL * 0.5;
+          rShoulder.rotation.z = lerp(-0.95, -0.55, bp) - idleSwayR * 0.5;
+
+          // ── Legs: bent at hip (thighs forward/down), knees bent under ────
+          // In the upright skydiver frame: hip.rotation.x forward ~1.2rad, knee bent ~1.6rad
+          lHip.rotation.x = lerp(-0.10, 1.2, bp);   // thigh swings forward/down
+          rHip.rotation.x = lerp(-0.10, 1.2, bp);
+          lHip.rotation.z = lerp(0.35, 0.25, bp);   // legs stay slightly apart
+          rHip.rotation.z = lerp(-0.35, -0.25, bp);
+          lKnee.rotation.x = lerp(0.35, -1.6, bp);   // knees bent sharply back/under
+          rKnee.rotation.x = lerp(0.35, -1.6, bp);
         }
 
         // Camera: pull back and rise slightly when banking hard
@@ -1193,7 +1218,7 @@
         const A_shY = THREE.MathUtils.degToRad(2) * flutterScale;
         const A_elX = THREE.MathUtils.degToRad(5) * flutterScale;
         const base = { shX: 0.35, shZ: 0.95, elX: THREE.MathUtils.degToRad(12), elY: THREE.MathUtils.degToRad(10), hipX: -0.10, hipZ: 0.35, kneeX: 0.35 };
-        const track = { shX: 0.55, shZ: -0.95, elX: 0, elY: 0, hipX: -0.25, hipZ: 0.15, kneeX: 1.15 };
+        const track = { shX: 0.55, shZ: -0.95, elX: 0, elY: 0, hipX: -0.25, hipZ: 0.15, kneeX: 1.55 };
 
         function applySide(side, joints) {
           const s = side;
@@ -1326,10 +1351,10 @@
           landingEmoji = "\uD83D\uDFE1";
           bonusDesc = "Outer ring: +300 pts (" + Math.round(dist) + "m off)";
         } else {
-          landingBonus = 0;
-          landingTitle = "Missed the target";
+          landingBonus = 50;
+          landingTitle = "Missed the LZ";
           landingEmoji = "\u2753";
-          bonusDesc = "No extra pts (" + Math.round(dist) + "m off)";
+          bonusDesc = "Missed target: +50 pts (" + Math.round(dist) + "m off)";
         }
       } else {
         // Hard landing — no chute
@@ -1365,6 +1390,7 @@
       chuteDeployed = false;
       chuteOpening = false;
       chuteOpenProgress = 0;
+      chutePoseBlend = 0;
       currentFallSpeed = FREEFALL_SPEED;
       chuteVelX = 0;
       chuteVelZ = 0;
@@ -1378,6 +1404,11 @@
         lShoulder.rotation.z = 0.95;
         rShoulder.rotation.x = 0.35;
         rShoulder.rotation.z = -0.95;
+        // Reset skydiver sub-group to belly-to-earth
+        if (player.userData.parts.skydiver) {
+          player.userData.parts.skydiver.rotation.x = Math.PI / 2;
+          player.userData.parts.skydiver.rotation.z = Math.PI;
+        }
       }
 
       player.position.set(0, GAME_HEIGHT / 2, 0);
@@ -1417,7 +1448,7 @@
       const dz = landingZone.z - player.position.z;
       const dist = Math.sqrt(dx * dx + dz * dz);
 
-      document.getElementById("lzDist").textContent = "Target: " + Math.round(dist) + "m";
+      document.getElementById("lzDist").textContent = "LZ: " + Math.round(dist) + "m";
 
       // Rotate arrow to point toward LZ (relative to camera facing -Z)
       // atan2(dx, -dz) gives angle from camera-forward to target
