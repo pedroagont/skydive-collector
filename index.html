@@ -317,8 +317,7 @@
       <p><strong>Mobile:</strong> Tilt your device</p>
       <hr style="border-color:rgba(255,255,255,0.2); margin:14px 0">
       <p style="font-size:14px; color:#ccc;">
-        &#127808; Deploy your parachute below <strong>5,000 ft</strong> to land safely.<br>
-        Pull early for bonus points — wait too long and it's a hard landing!
+        &#127808; Deploy your parachute below <strong>3,500 ft</strong> to land safely.<br>
       </p>
       <button id="startButton">Start Skydiving!</button>
     </div>
@@ -355,7 +354,7 @@
     let chutePoseBlend = 0;  // 0=freefall belly, 1=seated under canopy
 
     let chuteCanopy = null;
-    let currentFallSpeed = 3;
+    let currentFallSpeed = 10;
     const FREEFALL_SPEED = 10;
     const CHUTE_SPEED = 0.85;
     const CHUTE_DEPLOY_ALT = 3500;   // ft at which button appears
@@ -384,7 +383,6 @@
     const SENS_Z = 1 / 22;
 
     let keys = {};
-    const FALL_SPEED = 3;
 
     // Wind speed-line state (2D canvas)
     let windIntensity = 0;
@@ -403,9 +401,9 @@
       bgMusic = new Audio("audio/background.mp3");
       finishSound = new Audio("audio/finish.mp3");
       orbSound = new Audio("audio/orb.mp3");
-      chuteSound = new Audio("audio/finish.mp3"); // reuse finish sound for chute
+      chuteSound = new Audio("audio/parachute.mp3"); // reuse parachute sound for chute
 
-      [bgMusic, finishSound, orbSound].forEach(a => { a.preload = "auto"; a.load(); });
+      [bgMusic, finishSound, orbSound, chuteSound].forEach(a => { a.preload = "auto"; a.load(); });
       for (let i = 0; i < ORB_POOL_SIZE; i++) {
         const c = orbSound.cloneNode();
         c.preload = "auto"; c.load();
@@ -420,7 +418,7 @@
     initAudio();
 
     async function unlockAudio() {
-      const all = [bgMusic, finishSound, ...orbPool];
+      const all = [bgMusic, finishSound, chuteSound, ...orbPool];
       await Promise.all(all.map(async (a) => {
         try { a.muted = true; a.currentTime = 0; await a.play(); a.pause(); a.currentTime = 0; a.muted = false; } catch (_) { }
       }));
@@ -741,6 +739,9 @@
       finishSound.volume = 1;
       orbSound = new Audio("audio/orb.mp3");
       orbSound.volume = 1;
+      chuteSound = new Audio("audio/parachute.mp3");
+      chuteSound.volume = 1;
+      
 
       document.getElementById("startButton").addEventListener("click", setupDeviceOrientation);
       window.addEventListener("resize", onWindowResize);
@@ -950,11 +951,10 @@
         rShoulder.rotation.z = -0.3;
       }
 
-      // Play a whoosh / chute sound
+      // Play a parachute sound
       try {
-        const whoosh = new Audio("audio/finish.mp3");
-        whoosh.volume = 0.5;
-        whoosh.play().catch(() => { });
+        bgMusic.pause();
+        chuteSound.play().catch(() => { });
       } catch (_) { }
     }
 
@@ -1352,7 +1352,7 @@
           bonusDesc = "Outer ring: +300 pts (" + Math.round(dist) + "m off)";
         } else {
           landingBonus = 50;
-          landingTitle = "Missed the LZ";
+          landingTitle = "Missed the target";
           landingEmoji = "\u2753";
           bonusDesc = "Missed target: +50 pts (" + Math.round(dist) + "m off)";
         }
@@ -1378,8 +1378,14 @@
       const wc = document.getElementById("windCanvas");
       if (wc) { const c = wc.getContext("2d"); c && c.clearRect(0, 0, wc.width, wc.height); }
 
-      try { bgMusic.pause(); } catch (_) { }
-      try { finishSound.currentTime = 0; await finishSound.play(); } catch (_) { }
+      try {
+        chuteSound.currentTime = 0;
+        chuteSound.pause();
+        bgMusic.currentTime = 0;
+        bgMusic.pause();
+        finishSound.currentTime = 0;
+        await finishSound.play();
+      } catch (_) { }
     }
 
     function restartGame() {
