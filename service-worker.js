@@ -7,6 +7,7 @@ const APP_SHELL = [
   '/audio/background.mp3',
   '/audio/finish.mp3',
   '/audio/orb.mp3',
+  '/audio/parachute.mp3',
   'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'
 ];
 

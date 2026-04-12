@@ -1,187 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Skydive Collector</title>
 
-    <!-- Basic SEO -->
-    <meta
-      name="description"
-      content="Dive from 17,000 ft in Skydive Collector! Collect balloons, race through the clouds, and land safely. Play on desktop or mobile with tilt controls."
-    />
-    <meta
-      name="keywords"
-      content="skydiving game, Skydive Collector, balloon collector, 3D browser game, Three.js skydiving, WebGL game, freefall simulator, tilt control game, parachute game, arcade sky game"
-    />
-    <meta name="author" content="Pedro Gonzalez" />
-    <link rel="icon" type="image/png" href="./favicon.png" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skydive Collector</title>
 
-    <!-- Open Graph / Facebook -->
-    <meta
-      property="og:title"
-      content="Skydive Collector Game"
-    />
-    <meta
-      property="og:description"
-      content="Skydive from 17,000 ft, collect glowing balloons, and beat the high score! Works on desktop (WASD/Arrows) & mobile tilt controls."
-    />
-    <meta
-      property="og:image"
-      content="https://skydive-collector.onrender.com/preview.jpg"
-    />
-    <meta property="og:url" content="https://skydive-collector.onrender.com" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Skydive Collector" />
-    <meta property="og:locale" content="en_US" />
+  <!-- Basic SEO -->
+  <meta name="description"
+    content="Dive from 17,000 ft in Skydive Collector! Collect balloons, race through the clouds, and land safely. Play on desktop or mobile with tilt controls." />
+  <meta name="keywords"
+    content="skydiving game, Skydive Collector, balloon collector, 3D browser game, Three.js skydiving, WebGL game, freefall simulator, tilt control game, parachute game, arcade sky game" />
+  <meta name="author" content="Pedro Gonzalez" />
+  <link rel="icon" type="image/png" href="./favicon.png" />
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content="Skydive Collector Game"
-    />
-    <meta
-      name="twitter:description"
-      content="Jump from 17,000 ft, race through the sky, and collect balloons before landing! Play on desktop or mobile."
-    />
-    <meta
-      name="twitter:image"
-      content="https://skydive-collector.onrender.com/preview.jpg"
-    />
+  <!-- Open Graph / Facebook -->
+  <meta property="og:title" content="Skydive Collector Game" />
+  <meta property="og:description"
+    content="Skydive from 17,000 ft, collect glowing balloons, and beat the high score! Works on desktop (WASD/Arrows) & mobile tilt controls." />
+  <meta property="og:image" content="https://skydive-collector.onrender.com/preview.jpg" />
+  <meta property="og:url" content="https://skydive-collector.onrender.com" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Skydive Collector" />
+  <meta property="og:locale" content="en_US" />
 
-    <!-- PWA: Manifest + theme color -->
-    <link rel="manifest" href="/manifest.webmanifest">
-    <meta name="theme-color" content="#87ceeb">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Skydive Collector Game" />
+  <meta name="twitter:description"
+    content="Jump from 17,000 ft, race through the sky, and collect balloons before landing! Play on desktop or mobile." />
+  <meta name="twitter:image" content="https://skydive-collector.onrender.com/preview.jpg" />
 
-    <!-- iOS install support -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Skydive">
-    <link rel="apple-touch-icon" href="/icons/icon-180.png">
+  <!-- PWA: Manifest + theme color -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#87ceeb">
+
+  <!-- iOS install support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Skydive">
+  <link rel="apple-touch-icon" href="/icons/icon-180.png">
 
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        font-family: "Arial", sans-serif;
-        background: linear-gradient(
-          180deg,
-          #87ceeb 0%,
-          #87ceeb 60%,
-          #228b22 100%
-        );
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: "Arial", sans-serif;
+      background: linear-gradient(180deg, #87ceeb 0%, #87ceeb 60%, #228b22 100%);
+    }
+
+    #gameContainer {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #ui {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 100;
+      color: white;
+      font-size: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    #altitude {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 18px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+      text-align: right;
+    }
+
+    #altWarning {
+      display: none;
+      color: #ff4444;
+      font-weight: bold;
+      animation: pulse 0.6s infinite;
+      margin-top: 4px;
+    }
+
+    #instructions {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      z-index: 200;
+      min-width: 300px;
+    }
+
+    #startButton,
+    #restartButton {
+      background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+      border: none;
+      color: white;
+      padding: 15px 30px;
+      font-size: 18px;
+      border-radius: 30px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: transform 0.2s;
+      font-weight: bold;
+    }
+
+    #startButton:hover,
+    #restartButton:hover {
+      transform: scale(1.05);
+    }
+
+    #gameOver {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.92);
+      color: white;
+      padding: 40px;
+      border-radius: 15px;
+      text-align: center;
+      z-index: 200;
+      display: none;
+      min-width: 300px;
+    }
+
+    #gameOver h2 {
+      margin-top: 0;
+      font-size: 26px;
+    }
+
+    #landingResult {
+      font-size: 22px;
+      margin: 8px 0;
+    }
+
+    #bonusText {
+      font-size: 15px;
+      color: #aaa;
+      margin-bottom: 4px;
+    }
+
+    /* Parachute deploy button */
+    #chuteBtnWrap {
+      position: absolute;
+      bottom: 200px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 150;
+      display: none;
+      text-align: center;
+    }
+
+    #chuteBtn {
+      background: linear-gradient(135deg, #e53935, #c62828);
+      border: 3px solid #fff;
+      color: white;
+      padding: 18px 36px;
+      font-size: 1em;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      transition: transform 0.15s, background 0.2s;
+      letter-spacing: 1px;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    #chuteBtn:hover {
+      transform: scale(1.06);
+    }
+
+    #chuteBtn:active {
+      transform: scale(0.97);
+    }
+
+    #chuteBtn.deployed {
+      background: linear-gradient(135deg, #388e3c, #1b5e20);
+      cursor: default;
+      transform: scale(1);
+    }
+
+    #chuteHint {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1em;
+      margin-top: 6px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Altitude bar */
+    #altBar {
+      position: absolute;
+      right: 20px;
+      top: 80px;
+      width: 12px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      overflow: hidden;
+    }
+
+    #altFill {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      background: linear-gradient(to top, #ff4444, #ffaa00, #44cc44);
+      border-radius: 6px;
+      transition: height 0.1s;
+    }
+
+    #altBarLabel {
+      position: absolute;
+      right: 38px;
+      top: 80px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.2em;
+      writing-mode: vertical-rl;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
       }
 
-      #gameContainer {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
+      50% {
+        opacity: 0.4;
       }
+    }
 
-      #ui {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        z-index: 100;
-        color: white;
-        font-size: 20px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-      }
+    #windCanvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 90;
+      width: 100%;
+      height: 100%;
+    }
 
-      #instructions {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 30px;
-        border-radius: 15px;
-        text-align: center;
-        z-index: 200;
-        max-width: 400px;
-      }
-
-      #startButton, #restartButton {
-        background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-        border: none;
-        color: white;
-        padding: 15px 30px;
-        font-size: 18px;
-        border-radius: 30px;
-        cursor: pointer;
-        margin-top: 20px;
-        transition: transform 0.2s;
-        font-weight: bold;
-      }
-
-      #startButton:hover, #restartButton:hover {
-        transform: scale(1.05);
-      }
-
-      #gameOver {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.9);
-        color: white;
-        padding: 40px;
-        border-radius: 15px;
-        text-align: center;
-        z-index: 200;
-        display: none;
-      }
-
-      .pulse {
-        animation: pulse 2s infinite;
-      }
-
-      @keyframes pulse {
-        0% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.7;
-        }
-        100% {
-          opacity: 1;
-        }
-      }
-
-      #altitude {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        color: white;
-        font-size: 18px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-      }
-
-      #instructions, #gameOver {
-          min-width: 280px;
-      }
-
-      footer {
-        position:absolute;
-        bottom:20px;
-        left:50%;
-        transform:translateX(-50%);
-        color:white;
-        text-align:center;
-        
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        width: 90%;
-        font-size: 0.8em;
-        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
-      }
+    footer {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 90%;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+      font-weight: bold;
+    }
 
     footer a {
       color: white;
@@ -191,181 +274,184 @@
     footer a:hover {
       color: #ff6b6b;
     }
+  </style>
+</head>
 
-    </style>
-  </head>
-  <body>
-    <main id="gameContainer">
-      <div id="ui">
-        <div>Score: <span id="score">0</span></div>
-        <div>Speed: <span id="speed">0</span> kmh</div>
-        <button id="calibrateBtn" style="margin-top:8px;border:none;border-radius:8px;padding:6px 10px;cursor:pointer">
-          Recalibrate
-        </button>
-      </div>
+<body>
+  <main id="gameContainer">
+    <canvas id="windCanvas"></canvas>
+    <div id="ui">
+      <div>Score: <span id="score">0</span></div>
+      <div>Speed: <span id="speed">0</span> kmh</div>
+      <button id="calibrateBtn" style="margin-top:8px;border:none;border-radius:8px;padding:6px 10px;cursor:pointer">
+        Recalibrate
+      </button>
+    </div>
 
-      <div id="altitude">
-        Altitude: <span id="altitudeValue">17000</span> ft
-      </div>
+    <div id="altitude">
+      Altitude: <span id="altitudeValue">17000</span> ft
+      <div id="altWarning">&#9660; PULL CHUTE!</div>
+    </div>
 
-      <div id="instructions">
-        <h2>🪂 Skydive Collector</h2>
-        <p>Fly through the sky and collect the balloons while falling</p>
-        <p><strong>Desktop:</strong> Use WASD or Arrow Keys</p>
-        <p><strong>Mobile:</strong> Tilt your device</p>
-        <button id="startButton">Start Skydiving!</button>
-      </div>
+    <div id="lzHud"
+      style="display:none; position:absolute; bottom:500px; left:50%; transform:translateX(-50%); z-index:150; text-align:center; color:white; text-shadow:1px 1px 4px rgba(0,0,0,0.8);">
+      <div id="lzArrow" style="font-size:28px; line-height:1;">&#8593;</div>
+      <div id="lzDist" style="font-size:13px; margin-top:2px; letter-spacing:1px;">LZ: ---m</div>
+    </div>
 
-      <div id="gameOver">
-        <h2>Mission Complete!</h2>
-        <p>Final Score: <span id="finalScore">0</span></p>
-        <p>Balloons Collected: <span id="orbsCollected">0</span></p>
-        <button id="restartButton" onclick="restartGame()">Jump Again!</button>
-      </div>
+    <div id="altBarLabel">altitude</div>
+    <div id="altBar">
+      <div id="altFill" style="height:100%"></div>
+    </div>
 
-    </main>
+    <!-- Parachute button -->
+    <div id="chuteBtnWrap">
+      <button id="chuteBtn" onclick="deployChute()">🪂 DEPLOY CHUTE</button>
+      <div id="chuteHint">Deploy before hitting ground!</div>
+    </div>
 
+    <div id="instructions">
+      <h2>🪂 Skydive Collector</h2>
+      <p>Fly through the sky and collect the balloons while falling.</p>
+      <p><strong>Desktop:</strong> Use WASD or Arrow Keys</p>
+      <p><strong>Mobile:</strong> Tilt your device</p>
+      <hr style="border-color:rgba(255,255,255,0.2); margin:14px 0">
+      <p style="font-size:14px; color:#ccc;">
+        &#127808; Deploy your parachute below <strong>3,500 ft</strong> to land safely.<br>
+      </p>
+      <button id="startButton">Start Skydiving!</button>
+    </div>
 
-    <footer>
-        <p>Created by <a href="https://github.com/pedroagont" target="_blank">@pedroagont</a></p>
-        <p><a href="https://reservaparacaidismo.com/referidos/dbpKV/invitacion" target="_blank">Skydive in Mexico 🪂🇲🇽</a></p>
-    </footer>
+    <div id="gameOver">
+      <h2 id="gameOverTitle">Mission Complete!</h2>
+      <div id="landingResult">&#129344; Nice landing!</div>
+      <p id="bonusText"></p>
+      <p>Balloons: <strong><span id="orbsCollected">0</span></strong></p>
+      <p style="font-size:22px; font-weight:bold;">Total Score: <span id="finalScore">0</span></p>
+      <button id="restartButton" onclick="restartGame()">Jump Again!</button>
+    </div>
+  </main>
 
-    <script>
-      let scene, camera, renderer, player;
-      let orbs = [];
-      let clouds = [];
-      let gameStarted = false;
-      let score = 0;
-      let altitude = 17000;
-      let speed = 200;
-      let orbsCollectedCount = 0;
+  <footer>
+    <p>Created by <a href="https://github.com/pedroagont" target="_blank">@pedroagont</a></p>
+    <p><a href="https://reservaparacaidismo.com/referidos/dbpKV/invitacion" target="_blank">Skydive in Mexico 🪂🇲🇽</a></p>
+  </footer>
 
-      // --- Tilt calibration & smoothing ---
-      let deviceOrientation = { beta: 0, gamma: 0 };
-      let orientationSupported = false;
-      
-      let baseline = { beta: 0, gamma: 0, angle: 0 };
-      let calibrated = false;
+  <script>
+    let scene, camera, renderer, player;
+    let orbs = [], clouds = [];
+    let gameStarted = false;
+    let score = 0;
+    let altitude = 17000;
+    let speed = 200;
+    let orbsCollectedCount = 0;
+    let landingZone = null;   // { mesh, x, z }
 
-      // smoothing state
-      let smoothed = { x: 0, z: 0 };
+    // Parachute state
+    let chuteDeployed = false;
+    let chuteOpening = false;
+    let chuteOpenProgress = 0;
+    let chutePoseBlend = 0;  // 0=freefall belly, 1=seated under canopy
 
-      // tuning knobs
-      const DEADZONE_DEG = 1.5;   // ignore tiny tilts (< ~2–3º feels good)
-      const SMOOTHING = 0.8;     // 0.1–0.2 = smooth, >0.25 = snappier
-      const MAX_MOVE = 2;         // caps raw move before scaling
-      const SENS_X = 1 / 18;      // smaller = less sensitive (side tilt)
-      const SENS_Z = 1 / 22;      // smaller = less sensitive (forward/back tilt)
+    let chuteCanopy = null;
+    let currentFallSpeed = 10;
+    const FREEFALL_SPEED = 10;
+    const CHUTE_SPEED = 0.85;
+    const CHUTE_DEPLOY_ALT = 3500;   // ft at which button appears
+    const CHUTE_WARN_ALT = 1500;     // ft — warning flash
+    const CHUTE_FATAL_ALT = 200;     // ft — if not deployed, hard landing
 
+    // Canopy glide velocity (persists across frames — gives inertia/drift feel)
+    let chuteVelX = 0;
+    let chuteVelZ = 0;
+    const CHUTE_ACCEL = 0.055;  // acceleration per frame from toggle input
+    const CHUTE_DRAG = 0.87;   // friction — lower = drifts further after release
+    const CHUTE_MAX_SPEED = 3;    // max lateral speed
+    const CHUTE_BODY_LEAN = 0.20;   // body tilt angle into a turn
+    const CHUTE_CANOPY_TILT = 0.10;   // canopy roll into a turn
 
-      // Keyboard controls
-      let keys = {};
+    let deviceOrientation = { beta: 0, gamma: 0 };
+    let orientationSupported = false;
+    let baseline = { beta: 0, gamma: 0, angle: 0 };
+    let calibrated = false;
+    let smoothed = { x: 0, z: 0 };
 
-      // Game settings
-      const FALL_SPEED = 3;
-      const ORB_COUNT = 120;
-      const CLOUD_COUNT = 300;
-      const GAME_HEIGHT = 17000;
+    const DEADZONE_DEG = 1.5;
+    const SMOOTHING = 0.8;
+    const MAX_MOVE = 2;
+    const SENS_X = 1 / 18;
+    const SENS_Z = 1 / 22;
 
-      // Audio
-      let bgMusic, finishSound, orbSound;
-      const ORB_POOL_SIZE = 6;
-      const orbPool = [];
+    let keys = {};
 
-      function initAudio() {
-        bgMusic = new Audio("audio/background.mp3");
-        finishSound = new Audio("audio/finish.mp3");
-        orbSound = new Audio("audio/orb.mp3");
+    // Wind speed-line state (2D canvas)
+    let windIntensity = 0;
+    let windStreaks = [];          // array of streak data
+    const STREAK_COUNT = 90;
+    const ORB_COUNT = 120;
+    const CLOUD_COUNT = 300;
+    const GAME_HEIGHT = 17000;
+    const GROUND_Y = -GAME_HEIGHT / 2;  // world Y of the terrain surface
 
-        [bgMusic, finishSound, orbSound].forEach(a => {
-          a.preload = "auto";
-          a.load();
-        });
+    let bgMusic, finishSound, orbSound, chuteSound;
+    const ORB_POOL_SIZE = 6;
+    const orbPool = [];
 
-        // Make a small pool for overlapping orb hits
-        for (let i = 0; i < ORB_POOL_SIZE; i++) {
-          const c = orbSound.cloneNode(); // clones share decode, low overhead
-          c.preload = "auto";
-          c.load();
-          orbPool.push(c);
-        }
+    function initAudio() {
+      bgMusic = new Audio("audio/background.mp3");
+      finishSound = new Audio("audio/finish.mp3");
+      orbSound = new Audio("audio/orb.mp3");
+      chuteSound = new Audio("audio/parachute.mp3"); // reuse parachute sound for chute
 
-        document.addEventListener("visibilitychange", () => {
-          if (document.visibilityState === "hidden") {
-            try { bgMusic.pause(); } catch(_) {}
-          } else if (gameStarted) {
-            try { bgMusic.play(); } catch(_) {}
-          }
-        });
+      [bgMusic, finishSound, orbSound, chuteSound].forEach(a => { a.preload = "auto"; a.load(); });
+      for (let i = 0; i < ORB_POOL_SIZE; i++) {
+        const c = orbSound.cloneNode();
+        c.preload = "auto"; c.load();
+        orbPool.push(c);
       }
 
-      // Call in init()
-      initAudio();
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") { try { bgMusic.pause(); } catch (_) { } }
+        else if (gameStarted) { try { bgMusic.play(); } catch (_) { } }
+      });
+    }
+    initAudio();
 
-// Unlock on the same click that starts the game
-async function unlockAudio() {
-  const all = [bgMusic, finishSound, ...orbPool];
-  await Promise.all(all.map(async (a) => {
-    try {
-      a.muted = true;
-      a.currentTime = 0;
-      await a.play();   // fulfills gesture requirement
-      a.pause();
-      a.currentTime = 0;
-      a.muted = false;
-    } catch (_) { /* ignore */ }
-  }));
-}
+    async function unlockAudio() {
+      const all = [bgMusic, finishSound, chuteSound, ...orbPool];
+      await Promise.all(all.map(async (a) => {
+        try { a.muted = true; a.currentTime = 0; await a.play(); a.pause(); a.currentTime = 0; a.muted = false; } catch (_) { }
+      }));
+    }
 
-      function getScreenAngle() {
-      // 0, 90, 180, 270 (or -90 on some browsers)
+    function getScreenAngle() {
       const ang = (screen.orientation && typeof screen.orientation.angle === "number")
         ? screen.orientation.angle
         : (typeof window.orientation === "number" ? window.orientation : 0);
-      // Normalize -90 to 270 for easier switch logic
       return (ang === -90) ? 270 : (ang % 360 + 360) % 360;
     }
 
-    // Convert raw beta/gamma + current screen orientation into logical x/z tilts (in degrees),
-    // *before* baseline subtraction and scaling.
     function mapTilts(beta, gamma) {
       const angle = getScreenAngle();
-      // Portrait: x <- gamma (left/right), z <- beta (forward/back)
-      // Landscape-left (90): x <- -beta, z <- gamma
-      // Landscape-right (270): x <- beta, z <- -gamma
-      // Portrait-upside-down (180): x <- -gamma, z <- -beta
       switch (angle) {
-        case 0:   return { x: gamma,  z: beta,  angle };
-        case 90:  return { x: -beta,  z: gamma, angle };
+        case 0: return { x: gamma, z: beta, angle };
+        case 90: return { x: -beta, z: gamma, angle };
         case 180: return { x: -gamma, z: -beta, angle };
-        case 270: return { x: beta,   z: -gamma, angle };
-        default:  return { x: gamma,  z: beta,  angle };
+        case 270: return { x: beta, z: -gamma, angle };
+        default: return { x: gamma, z: beta, angle };
       }
     }
 
-    // Take N samples over ~600ms to set the neutral baseline
     function autoCalibrate(samples = 20, durationMs = 600) {
       return new Promise((resolve) => {
-        let count = 0;
-        let sumX = 0, sumZ = 0;
+        let count = 0, sumX = 0, sumZ = 0;
         const startAngle = getScreenAngle();
-
         const id = setInterval(() => {
           const mapped = mapTilts(deviceOrientation.beta, deviceOrientation.gamma);
-          sumX += mapped.x;
-          sumZ += mapped.z;
-          count++;
-
+          sumX += mapped.x; sumZ += mapped.z; count++;
           if (count >= samples) {
             clearInterval(id);
-            baseline = {
-              beta: 0, // not used directly post mapping
-              gamma: 0,
-              angle: startAngle,
-              x: sumX / count,
-              z: sumZ / count,
-            };
+            baseline = { beta: 0, gamma: 0, angle: startAngle, x: sumX / count, z: sumZ / count };
             calibrated = true;
             resolve();
           }
@@ -373,683 +459,1035 @@ async function unlockAudio() {
       });
     }
 
-    // Utility: apply deadzone and clamp
     function processTilt(rawDeg, deadzone, maxAbs) {
       const mag = Math.abs(rawDeg);
       if (mag < deadzone) return 0;
-      // linear re-map after deadzone to keep feel consistent
       const sign = rawDeg < 0 ? -1 : 1;
-      const adjusted = (mag - deadzone);
-      return sign * Math.min(adjusted, maxAbs);
+      return sign * Math.min(mag - deadzone, maxAbs);
     }
 
-      function init() {
-        // Create scene
-        scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(0x87ceeb, 100, 2000);
 
-        // Create camera
-        camera = new THREE.PerspectiveCamera(
-          75,
-          window.innerWidth / window.innerHeight,
-          0.1,
-          3000
-        );
-        camera.position.set(0, 0, 5);
+    function createLandingZone() {
+      if (landingZone && landingZone.group) scene.remove(landingZone.group);
 
-        // Create renderer
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x87ceeb, 1);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      const group = new THREE.Group();
+      // Randomise position — offset so it's never directly below spawn
+      const lzX = (Math.random() - 0.5) * 160;
+      const lzZ = (Math.random() - 0.5) * 160;
+      // Ground plane sits at Y = -GAME_HEIGHT/2 in world space
+      const groundY = -GAME_HEIGHT / 2;
 
-        document
-          .getElementById("gameContainer")
-          .appendChild(renderer.domElement);
+      // Concentric rings: outer=yellow, mid=orange, bull=red
+      const ringDefs = [
+        { r: 40, color: 0xffee00, label: 'outer' },
+        { r: 25, color: 0xff8800, label: 'mid' },
+        { r: 12, color: 0xff2200, label: 'inner' },
+      ];
 
-        // Create lighting
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
-        scene.add(ambientLight);
+      ringDefs.forEach(({ r, color }) => {
+        const segments = 64;
+        const pts = [];
+        for (let i = 0; i <= segments; i++) {
+          const a = (i / segments) * Math.PI * 2;
+          pts.push(new THREE.Vector3(Math.cos(a) * r, 0.5, Math.sin(a) * r));
+        }
+        const geo = new THREE.BufferGeometry().setFromPoints(pts);
+        group.add(new THREE.Line(geo, new THREE.LineBasicMaterial({ color, linewidth: 2 })));
+      });
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(100, 100, 50);
-        directionalLight.castShadow = true;
-        directionalLight.shadow.mapSize.width = 2048;
-        directionalLight.shadow.mapSize.height = 2048;
-        scene.add(directionalLight);
+      // Filled bullseye disc
+      const discGeo = new THREE.CircleGeometry(12, 48);
+      const discMat = new THREE.MeshBasicMaterial({ color: 0xff2200, transparent: true, opacity: 0.35, side: THREE.DoubleSide });
+      const disc = new THREE.Mesh(discGeo, discMat);
+      disc.rotation.x = -Math.PI / 2;
+      group.add(disc);
 
-        // Create player (skydiver)
-        createSkydiver();
+      // Cross / X marker in center
+      const crossMat = new THREE.LineBasicMaterial({ color: 0xffffff });
+      const s = 8;
+      [
+        [new THREE.Vector3(-s, 0.6, 0), new THREE.Vector3(s, 0.6, 0)],
+        [new THREE.Vector3(0, 0.6, -s), new THREE.Vector3(0, 0.6, s)],
+      ].forEach(pts => {
+        group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), crossMat));
+      });
 
-        // Create orbs
-        createOrbs();
+      // Ground plane patch (green square so LZ reads against sky background)
+      const patchGeo = new THREE.PlaneGeometry(120, 120);
+      const patchMat = new THREE.MeshLambertMaterial({ color: 0x3a7d44, side: THREE.DoubleSide });
+      const patch = new THREE.Mesh(patchGeo, patchMat);
+      patch.rotation.x = -Math.PI / 2;
+      patch.position.y = -0.2;
+      group.add(patch);
 
-        // Create clouds
-        createClouds();
+      group.position.set(lzX, groundY, lzZ);
+      scene.add(group);
 
-        // Setup controls
-        setupControls();
+      landingZone = { group, x: lzX, z: lzZ, groundY };
+    }
 
-        // Load audio files
-        bgMusic = new Audio("audio/background.mp3");
-        bgMusic.loop = true;
-        bgMusic.volume = 0.3;
 
-        finishSound = new Audio("audio/finish.mp3");
-        finishSound.volume = 1;
+    function createTerrain() {
+      const groundY = GROUND_Y;
 
-        orbSound = new Audio("audio/orb.mp3");
-        orbSound.volume = 1;
+      // ── Large flat ground plane ──────────────────────────────────────────
+      const groundGeo = new THREE.PlaneGeometry(2000, 2000, 40, 40);
+      // Gentle height variation to break up the flat look
+      const pos = groundGeo.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i), z = pos.getY(i); // PlaneGeometry: Y is Z before rotation
+        // Keep the center zone flat (landing area), add hills further out
+        const d = Math.sqrt(x * x + z * z);
+        const hill = d > 200 ? Math.sin(x * 0.02) * Math.cos(z * 0.02) * 12 : 0;
+        pos.setZ(i, hill);
+      }
+      groundGeo.computeVertexNormals();
 
-        // Start button event
-        document
-          .getElementById("startButton")
-          .addEventListener("click", setupDeviceOrientation);
+      const groundMat = new THREE.MeshLambertMaterial({ color: 0x4a7c42 });
+      const ground = new THREE.Mesh(groundGeo, groundMat);
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = groundY;
+      ground.receiveShadow = true;
+      scene.add(ground);
 
-        // Window resize handler
-        window.addEventListener("resize", onWindowResize);
+      // ── Runway / dirt strip through center ──────────────────────────────
+      const runwayGeo = new THREE.PlaneGeometry(30, 300);
+      const runwayMat = new THREE.MeshLambertMaterial({ color: 0x8b7355 });
+      const runway = new THREE.Mesh(runwayGeo, runwayMat);
+      runway.rotation.x = -Math.PI / 2;
+      runway.position.set(0, groundY + 0.3, 0);
+      scene.add(runway);
 
-        document.getElementById("calibrateBtn")?.addEventListener("click", async () => {
-          // brief hint to the player
-          const old = document.getElementById("calibrateBtn").textContent;
-          document.getElementById("calibrateBtn").textContent = "Hold still…";
-          await autoCalibrate();
-          document.getElementById("calibrateBtn").textContent = old;
+      // ── Tree clusters scattered around ──────────────────────────────────
+      const treeMat = new THREE.MeshLambertMaterial({ color: 0x2d6a2d });
+      const trunkMat = new THREE.MeshLambertMaterial({ color: 0x5c3a1e });
+      function plantTree(x, z) {
+        const h = 8 + Math.random() * 6;
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.2, h * 0.4, 6), trunkMat);
+        trunk.position.set(x, groundY + h * 0.2, z);
+        scene.add(trunk);
+        const crown = new THREE.Mesh(new THREE.ConeGeometry(4 + Math.random() * 2, h * 0.8, 7), treeMat);
+        crown.position.set(x, groundY + h * 0.6, z);
+        scene.add(crown);
+      }
+      // Avoid planting trees inside the LZ area (center ±80)
+      for (let i = 0; i < 120; i++) {
+        let tx, tz;
+        do {
+          tx = (Math.random() - 0.5) * 800;
+          tz = (Math.random() - 0.5) * 800;
+        } while (Math.abs(tx) < 90 && Math.abs(tz) < 90);
+        plantTree(tx, tz);
+      }
+
+      // ── Small buildings / hangars near runway ───────────────────────────
+      const buildMat = new THREE.MeshLambertMaterial({ color: 0xd4c5a9 });
+      const roofMat = new THREE.MeshLambertMaterial({ color: 0x8b3a3a });
+      [[120, 40], [-130, -30], [140, -60]].forEach(([bx, bz]) => {
+        const w = 18 + Math.random() * 10, d = 12 + Math.random() * 8, h = 10 + Math.random() * 5;
+        const walls = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), buildMat);
+        walls.position.set(bx, groundY + h / 2, bz);
+        scene.add(walls);
+        const roof = new THREE.Mesh(new THREE.ConeGeometry(Math.max(w, d) * 0.75, 6, 4), roofMat);
+        roof.position.set(bx, groundY + h + 3, bz);
+        roof.rotation.y = Math.PI / 4;
+        scene.add(roof);
+      });
+    }
+
+
+    function createWindLines() {
+      const canvas = document.getElementById('windCanvas');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      // Initialise streak pool — each streak is a line from near-center outward
+      windStreaks = [];
+      for (let i = 0; i < STREAK_COUNT; i++) {
+        windStreaks.push(makeStreak());
+      }
+    }
+
+    function makeStreak() {
+      // Angle radiating from center
+      const angle = Math.random() * Math.PI * 2;
+      // Start distance from center — between 5% and 70% of half-screen diagonal
+      const startR = 0.05 + Math.random() * 0.55;
+      // Length as fraction of half-diagonal
+      const length = 0.04 + Math.random() * 0.18;
+      // Speed at which it moves outward (fraction of half-diagonal per frame)
+      const speed = 0.008 + Math.random() * 0.018;
+      // Thickness 1.5–4px
+      const width = 1.5 + Math.random() * 2.5;
+      // Stagger so they don't all start at the same point
+      const phase = Math.random();
+      return { angle, r: startR + phase * 0.4, length, speed, width, phase };
+    }
+
+    function updateWindLines() {
+      const canvas = document.getElementById('windCanvas');
+      if (!canvas) return;
+
+      // Keep canvas sized to viewport
+      if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+      const cx = W / 2, cy = H / 2;
+      // Half-diagonal — used to normalise radius so streaks fill any aspect ratio
+      const halfDiag = Math.sqrt(cx * cx + cy * cy);
+
+      // Target intensity
+      const targetIntensity = (gameStarted && !chuteDeployed) ? 1.0 : 0.0;
+      windIntensity += (targetIntensity - windIntensity) * 0.05;
+
+      // Clear with a semi-transparent fill — this creates the motion-trail effect
+      // More opaque = shorter trails; less opaque = longer ghost trails
+      ctx.clearRect(0, 0, W, H);
+
+      if (windIntensity < 0.01) return;
+
+      const time = performance.now() * 0.001;
+      // Irregular gust on top of base
+      const gust = 0.7 + 0.3 * Math.sin(time * 1.8) * Math.sin(time * 3.1 + 0.9);
+      const fi = windIntensity * gust;
+
+      // ── Radial vignette ─────────────────────────────────────────────────
+      // Two concentric gradients: blue tint ring + white hot center corona
+      const vig = ctx.createRadialGradient(cx, cy, halfDiag * 0.25, cx, cy, halfDiag * 1.05);
+      vig.addColorStop(0, `rgba(200,230,255, 0)`);
+      vig.addColorStop(0.5, `rgba(180,215,255, ${(fi * 0.18).toFixed(3)})`);
+      vig.addColorStop(0.8, `rgba(150,200,255, ${(fi * 0.45).toFixed(3)})`);
+      vig.addColorStop(1.0, `rgba(100,170,255, ${(fi * 0.70).toFixed(3)})`);
+      ctx.fillStyle = vig;
+      ctx.fillRect(0, 0, W, H);
+
+      // ── Speed streaks ────────────────────────────────────────────────────
+      windStreaks.forEach(streak => {
+        // Advance outward
+        streak.r += streak.speed * fi * (0.8 + 0.4 * gust);
+
+        // Reset when streak exits the screen diagonal
+        if (streak.r > 1.1) {
+          streak.r = 0.02 + Math.random() * 0.12;  // restart near center
+          streak.angle = Math.random() * Math.PI * 2;
+          streak.length = 0.04 + Math.random() * 0.18;
+          streak.speed = 0.008 + Math.random() * 0.018;
+          streak.width = 1.5 + Math.random() * 2.5;
+        }
+
+        // World coords of start and end of streak
+        const x1 = cx + Math.cos(streak.angle) * streak.r * halfDiag;
+        const y1 = cy + Math.sin(streak.angle) * streak.r * halfDiag;
+        const x2 = cx + Math.cos(streak.angle) * (streak.r + streak.length) * halfDiag;
+        const y2 = cy + Math.sin(streak.angle) * (streak.r + streak.length) * halfDiag;
+
+        // Opacity: bright as it exits, faint when just born near center
+        const alpha = fi * Math.min(1, streak.r / 0.15) * (0.55 + 0.45 * gust);
+
+        // Gradient along the streak: transparent at tail, white at head
+        const grad = ctx.createLinearGradient(x1, y1, x2, y2);
+        grad.addColorStop(0, `rgba(220,235,255, 0)`);
+        grad.addColorStop(1, `rgba(255,255,255, ${alpha.toFixed(3)})`);
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = streak.width * fi;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+      });
+    }
+
+    function init() {
+      scene = new THREE.Scene();
+      scene.fog = new THREE.Fog(0x87ceeb, 100, 2000);
+
+      camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 3000);
+      camera.position.set(0, 0, 5);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setClearColor(0x87ceeb, 1);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      document.getElementById("gameContainer").appendChild(renderer.domElement);
+
+      const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+      scene.add(ambientLight);
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(100, 100, 50);
+      directionalLight.castShadow = true;
+      scene.add(directionalLight);
+
+      createSkydiver();
+      createOrbs();
+      createClouds();
+      createTerrain();
+      createLandingZone();
+      createWindLines();
+      setupControls();
+
+      bgMusic = new Audio("audio/background.mp3");
+      bgMusic.loop = true;
+      bgMusic.volume = 0.3;
+      finishSound = new Audio("audio/finish.mp3");
+      finishSound.volume = 1;
+      orbSound = new Audio("audio/orb.mp3");
+      orbSound.volume = 1;
+      chuteSound = new Audio("audio/parachute.mp3");
+      chuteSound.volume = 1;
+      
+
+      document.getElementById("startButton").addEventListener("click", setupDeviceOrientation);
+      window.addEventListener("resize", onWindowResize);
+
+      document.getElementById("calibrateBtn")?.addEventListener("click", async () => {
+        const btn = document.getElementById("calibrateBtn");
+        const old = btn.textContent;
+        btn.textContent = "Hold still…";
+        await autoCalibrate();
+        btn.textContent = old;
+      });
+
+      // Keyboard shortcut for chute
+      document.addEventListener("keydown", (e) => {
+        if ((e.code === "Space" || e.code === "KeyP") && gameStarted && !chuteDeployed) {
+          deployChute();
+        }
+      });
+    }
+
+    function createSkydiver() {
+      const root = new THREE.Group();
+      root.position.set(0, 0, 0);
+      const skydiver = new THREE.Group();
+      skydiver.rotation.x = Math.PI / 2;
+      skydiver.rotation.z = Math.PI;
+      root.add(skydiver);
+
+      const suitMat = new THREE.MeshLambertMaterial({ color: 0x1565c0 });
+      const accentMat = new THREE.MeshLambertMaterial({ color: 0x0d47a1 });
+      const rigMat = new THREE.MeshLambertMaterial({ color: 0x333333 });
+      const helmetMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+      const visorMat = new THREE.MeshLambertMaterial({ color: 0x88c9ff, transparent: true, opacity: 0.8 });
+
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.0, 0.35), suitMat);
+      torso.position.set(0, 0.1, 0);
+      skydiver.add(torso);
+
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), helmetMat);
+      head.position.set(0, 0.75, 0.02);
+      skydiver.add(head);
+
+      const visor = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.12, 0.02), visorMat);
+      visor.position.set(0, 0.75, 0.17);
+      skydiver.add(visor);
+
+      const rig = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.15), rigMat);
+      rig.position.set(0, 0.1, -0.25);
+      skydiver.add(rig);
+
+      function buildArm(side = 1) {
+        const shoulder = new THREE.Group();
+        shoulder.position.set(0.38 * side, 0.4, 0);
+        const upperLen = 0.6;
+        const upperG = new THREE.Group();
+        shoulder.add(upperG);
+        const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, upperLen, 8), suitMat);
+        upper.rotation.z = Math.PI / 2;
+        upper.position.x = (upperLen / 2) * side;
+        upperG.add(upper);
+        const elbow = new THREE.Group();
+        elbow.position.x = upperLen * side;
+        shoulder.add(elbow);
+        const foreLen = 0.5;
+        const foreG = new THREE.Group();
+        elbow.add(foreG);
+        const fore = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, foreLen, 8), suitMat);
+        fore.rotation.z = Math.PI / 2;
+        fore.position.x = (foreLen / 2) * side;
+        foreG.add(fore);
+        const wrist = new THREE.Group();
+        wrist.position.x = foreLen * side;
+        foreG.add(wrist);
+        const hand = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.10, 0.22), accentMat);
+        hand.position.set(0.05 * side, 0, 0.0);
+        wrist.add(hand);
+        shoulder.rotation.x = 0.35;
+        shoulder.rotation.z = 0.95 * side;
+        elbow.rotation.x = THREE.MathUtils.degToRad(12);
+        elbow.rotation.y = THREE.MathUtils.degToRad(10) * side;
+        foreG.rotation.z = THREE.MathUtils.degToRad(8) * side;
+        wrist.rotation.y = THREE.MathUtils.degToRad(8) * side;
+        wrist.rotation.z = THREE.MathUtils.degToRad(-6);
+        return { shoulder, elbow };
+      }
+
+      function buildLeg(side = 1) {
+        const hip = new THREE.Group();
+        hip.position.set(0.18 * side, -0.5, 0.02);
+        const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.7, 8), suitMat);
+        thigh.position.y = -0.35;
+        hip.add(thigh);
+        const knee = new THREE.Group();
+        knee.position.set(0, -0.7, 0);
+        const shin = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.6, 8), suitMat);
+        shin.position.y = -0.3;
+        knee.add(shin);
+        const boot = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.12, 0.3), accentMat);
+        boot.position.set(0, -0.62, 0.05);
+        knee.add(boot);
+        hip.rotation.x = -0.1;
+        hip.rotation.z = 0.35 * side;
+        knee.rotation.x = 0.35;
+        hip.add(knee);
+        return { hip, knee };
+      }
+
+      const LArm = buildArm(+1);
+      const RArm = buildArm(-1);
+      skydiver.add(LArm.shoulder, RArm.shoulder);
+      const LLeg = buildLeg(+1);
+      const RLeg = buildLeg(-1);
+      skydiver.add(LLeg.hip, RLeg.hip);
+
+      skydiver.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+
+      root.userData.parts = {
+        lShoulder: LArm.shoulder, rShoulder: RArm.shoulder,
+        lElbow: LArm.elbow, rElbow: RArm.elbow,
+        lHip: LLeg.hip, rHip: RLeg.hip,
+        lKnee: LLeg.knee, rKnee: RLeg.knee,
+        skydiver: skydiver
+      };
+
+      player = root;
+      scene.add(player);
+    }
+
+    // Build a rectangular ram-air style canopy above the player
+    function buildChuteCanopy() {
+      const group = new THREE.Group();
+
+      const W = 20;    // total span left-right
+      const D = 9;     // front-to-back depth
+      const H = 2.5;   // cell inflation height
+      const CELLS = 7;
+      const cellW = W / CELLS;
+      const colors = [0xff2222, 0xffffff];
+
+      for (let i = 0; i < CELLS; i++) {
+        const mat = new THREE.MeshLambertMaterial({
+          color: colors[i % 2], transparent: true, opacity: 0.9, side: THREE.DoubleSide
         });
+        const cell = new THREE.Mesh(new THREE.BoxGeometry(cellW, H, D), mat);
+        const xPos = -W / 2 + cellW * i + cellW / 2;
+        // Slight arc: edge cells drop a little (ram-air bow shape)
+        const arcDrop = Math.pow(xPos / (W / 2), 2) * 1.2;
+        cell.position.set(xPos, -arcDrop, 0);
+        group.add(cell);
 
+        // Rib seam lines between cells
+        if (i > 0) {
+          const seamX = -W / 2 + cellW * i;
+          const seamDrop = Math.pow(seamX / (W / 2), 2) * 1.2;
+          const ribMat = new THREE.LineBasicMaterial({ color: 0x888888 });
+          const pts = [
+            new THREE.Vector3(seamX, H / 2 - seamDrop, -D / 2),
+            new THREE.Vector3(seamX, H / 2 - seamDrop, D / 2),
+          ];
+          group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), ribMat));
+        }
       }
 
-      function createSkydiver() {
-        // Root that your game moves/rotates (leave this as "player")
-        const root = new THREE.Group();
-        root.position.set(0, 0, 0);
+      // Suspension lines from canopy underside down to harness point
+      const lineMat = new THREE.LineBasicMaterial({ color: 0xdddddd });
+      const lineCount = 8;
+      for (let i = 0; i < lineCount; i++) {
+        const t = i / (lineCount - 1);
+        const attachX = -W / 2 + t * W;
+        const attachZ = (i % 2 === 0) ? -D / 2 : D / 2;
+        const arcDrop = Math.pow(attachX / (W / 2), 2) * 1.2;
+        const pts = [
+          new THREE.Vector3(attachX, -H / 2 - arcDrop, attachZ),
+          new THREE.Vector3(0, -12, 0),
+        ];
+        group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), lineMat));
+      }
 
-        // Body group rotated to belly-to-earth (face toward -Y)
-        const skydiver = new THREE.Group();
-        skydiver.rotation.x = Math.PI / 2; // belly-to-earth orientation
-        skydiver.rotation.z = Math.PI; // face forward
-        root.add(skydiver);
+      group.position.y = 14;
+      group.scale.set(0, 0, 0);
+      return group;
+    }
 
-        // Materials
-        const suitMat   = new THREE.MeshLambertMaterial({ color: 0x1565c0 }); // suit
-        const accentMat = new THREE.MeshLambertMaterial({ color: 0x0d47a1 }); // gloves/boots
-        const rigMat    = new THREE.MeshLambertMaterial({ color: 0x333333 }); // parachute rig
-        const helmetMat = new THREE.MeshLambertMaterial({ color: 0xffffff }); // helmet
-        const visorMat  = new THREE.MeshLambertMaterial({ color: 0x88c9ff, transparent: true, opacity: 0.8 });
+    function deployChute() {
+      if (chuteDeployed || !gameStarted) return;
+      chuteDeployed = true;
+      chuteOpening = true;
+      chuteOpenProgress = 0;
 
-        // Torso
-        const torso = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.0, 0.35), suitMat);
-        torso.position.set(0, 0.1, 0);
-        skydiver.add(torso);
+      // Update button state
+      const btn = document.getElementById("chuteBtn");
+      btn.textContent = "✓ CHUTE OPEN";
+      btn.classList.add("deployed");
+      btn.disabled = true;
+      document.getElementById("chuteHint").textContent = "Steering toward landing zone...";
 
-        // Head + visor (front is +Z)
-        const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), helmetMat);
-        head.position.set(0, 0.75, 0.02);
-        skydiver.add(head);
+      // Add canopy to player
+      chuteCanopy = buildChuteCanopy();
+      player.add(chuteCanopy);
 
-        const visor = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.12, 0.02), visorMat);
-        visor.position.set(0, 0.75, 0.17);
-        skydiver.add(visor);
+      // Animate arms up to grab risers
+      if (player.userData && player.userData.parts) {
+        const { lShoulder, rShoulder } = player.userData.parts;
+        lShoulder.rotation.x = -1.2;
+        lShoulder.rotation.z = 0.3;
+        rShoulder.rotation.x = -1.2;
+        rShoulder.rotation.z = -0.3;
+      }
 
-        // Parachute rig (on the back, -Z)
-        const rig = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.15), rigMat);
-        rig.position.set(0, 0.1, -0.25);
-        skydiver.add(rig);
+      // Play a parachute sound
+      try {
+        bgMusic.pause();
+        chuteSound.play().catch(() => { });
+      } catch (_) { }
+    }
 
-        // Arm builder (shoulder pivot -> upper -> elbow pivot -> forearm -> hand)
-        // Arm builder (shoulder pivot -> upper group -> elbow pivot -> forearm group -> wrist pivot -> hand)
-        function buildArm(side = 1) {
-          const shoulder = new THREE.Group();
-          shoulder.position.set(0.38 * side, 0.4, 0);
+    function updateChuteAnimation() {
+      if (!chuteDeployed || !chuteCanopy) return;
 
-          // --- Upper arm (pivot at shoulder) ---
-          const upperLen = 0.6;
-          const upperG = new THREE.Group();               // transform group for upper arm
-          shoulder.add(upperG);
+      // Open animation
+      if (chuteOpening) {
+        chuteOpenProgress = Math.min(1, chuteOpenProgress + 0.04);
+        const s = chuteOpenProgress;
+        chuteCanopy.scale.set(s, s, s);
+        if (chuteOpenProgress >= 1) chuteOpening = false;
+      }
 
-          const upper = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.07, 0.07, upperLen, 8),
-            suitMat
-          );
-          upper.rotation.z = Math.PI / 2;                 // cylinder axis -> X
-          upper.position.x = (upperLen / 2) * side;       // half-length from shoulder pivot
-          upperG.add(upper);
+      // Gentle sway
+      const t = performance.now() * 0.001;
+      chuteCanopy.rotation.x = Math.sin(t * 0.7) * 0.04;
+      chuteCanopy.rotation.z = Math.cos(t * 0.5) * 0.03;
 
-          // --- Elbow pivot at the end of the upper arm ---
-          const elbow = new THREE.Group();
-          elbow.position.x = upperLen * side;             // at upper tip
-          shoulder.add(elbow);
+      // Slow fall speed gradually
+      if (currentFallSpeed > CHUTE_SPEED) {
+        currentFallSpeed = Math.max(CHUTE_SPEED, currentFallSpeed * 0.94);
+      }
+    }
 
-          // --- Forearm (pivot at elbow) ---
-          const foreLen = 0.5;
-          const foreG = new THREE.Group();
-          elbow.add(foreG);
-
-          const fore = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.06, 0.06, foreLen, 8),
-            suitMat
-          );
-          fore.rotation.z = Math.PI / 2;                  // axis -> X
-          fore.position.x = (foreLen / 2) * side;         // half-length from elbow pivot
-          foreG.add(fore);
-
-          // --- Wrist pivot at the end of the forearm ---
-          const wrist = new THREE.Group();
-          wrist.position.x = foreLen * side;              // at forearm tip
-          foreG.add(wrist);
-
-          // Hand (slightly longer/wider than before; oriented to airflow)
-          const hand = new THREE.Mesh(
-            new THREE.BoxGeometry(0.18, 0.10, 0.22),
-            accentMat
-          );
-          hand.position.set(0.05 * side, 0, 0.0);         // tiny forward bias
-          wrist.add(hand);
-
-          // --- Pose: belly-fly (box) ---
-          shoulder.rotation.x = 0.35;                     // arms slightly forward
-          shoulder.rotation.z = 0.95 * side;              // wide
-
-          // Natural elbow bend & bring forearms a touch toward +Z (into the wind)
-          elbow.rotation.x = THREE.MathUtils.degToRad(12);     // flex
-          elbow.rotation.y = THREE.MathUtils.degToRad(10) * side;
-
-          // Small inward cant of forearm; subtle wrist pitch/pronation
-          foreG.rotation.z = THREE.MathUtils.degToRad(8) * side;
-          wrist.rotation.y = THREE.MathUtils.degToRad(8) * side;
-          wrist.rotation.z = THREE.MathUtils.degToRad(-6);
-
-          return { shoulder, elbow };
-        }
-
-
-        // Leg builder (hip pivot -> thigh -> knee pivot -> shin -> boot)
-        function buildLeg(side = 1) {
-          const hip = new THREE.Group();
-          hip.position.set(0.18 * side, -0.5, 0.02);
-
-          const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.7, 8), suitMat);
-          thigh.position.y = -0.35;
-          hip.add(thigh);
-
-          const knee = new THREE.Group();
-          knee.position.set(0, -0.7, 0);
-
-          const shin = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.6, 8), suitMat);
-          shin.position.y = -0.3;
-          knee.add(shin);
-
-          const boot = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.12, 0.3), accentMat);
-          boot.position.set(0, -0.62, 0.05);
-          knee.add(boot);
-
-          // Belly-fly stance: legs apart, knees slightly bent, toes trailing
-          hip.rotation.x = -0.1;                 // tiny hip arch (hips down)
-          hip.rotation.z = 0.35 * side;          // spread
-          knee.rotation.x = 0.35;                // bend knees
-
-          hip.add(knee);
-          return { hip, knee };
-        }
-
-        // Build limbs and add to skydiver (so they stay in belly orientation)
-        const LArm = buildArm(+1);
-        const RArm = buildArm(-1);
-        skydiver.add(LArm.shoulder, RArm.shoulder);
-
-        const LLeg = buildLeg(+1);
-        const RLeg = buildLeg(-1);
-        skydiver.add(LLeg.hip, RLeg.hip);
-
-        // Shadows
-        skydiver.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-
-        // Keep optional handles for limb animation (if you added it elsewhere)
-        root.userData.parts = {
-          lShoulder: LArm.shoulder, rShoulder: RArm.shoulder,
-          lElbow: LArm.elbow,       rElbow: RArm.elbow,
-          lHip: LLeg.hip,           rHip: RLeg.hip,
-          lKnee: LLeg.knee,         rKnee: RLeg.knee
+    function createOrbs() {
+      for (let i = 0; i < ORB_COUNT; i++) {
+        const orbGeometry = new THREE.SphereGeometry(20, 20, 20);
+        const hue = Math.random();
+        const orbMaterial = new THREE.MeshLambertMaterial({
+          color: new THREE.Color().setHSL(hue, 1, 0.5),
+          transparent: true, opacity: 0.8,
+        });
+        const orb = new THREE.Mesh(orbGeometry, orbMaterial);
+        orb.position.set(
+          (Math.random() - 0.5) * 200,
+          Math.random() * GAME_HEIGHT - GAME_HEIGHT / 2,
+          (Math.random() - 0.5) * 200
+        );
+        orb.userData = {
+          originalY: orb.position.y,
+          rotationSpeed: Math.random() * 0.05 + 0.02,
+          collected: false,
+          points: Math.floor(Math.random() * 50) + 10,
         };
-
-        // Finalize
-        player = root;
-        scene.add(player);
+        orbs.push(orb);
+        scene.add(orb);
       }
+    }
 
-
-
-      function createOrbs() {
-        for (let i = 0; i < ORB_COUNT; i++) {
-          const orbGeometry = new THREE.SphereGeometry(20, 20, 20);
-          const hue = Math.random();
-          const orbMaterial = new THREE.MeshLambertMaterial({
-            color: new THREE.Color().setHSL(hue, 1, 0.5),
-            transparent: true,
-            opacity: 0.8,
-          });
-
-          const orb = new THREE.Mesh(orbGeometry, orbMaterial);
-
-          // Random position in the sky
-          orb.position.set(
-            (Math.random() - 0.5) * 200,
-            Math.random() * GAME_HEIGHT - GAME_HEIGHT / 2,
-            (Math.random() - 0.5) * 200
-          );
-
-          orb.userData = {
-            originalY: orb.position.y,
-            rotationSpeed: Math.random() * 0.05 + 0.02,
-            collected: false,
-            points: Math.floor(Math.random() * 50) + 10,
-          };
-
-          orbs.push(orb);
-          scene.add(orb);
+    function createClouds() {
+      for (let i = 0; i < CLOUD_COUNT; i++) {
+        const cloud = new THREE.Group();
+        for (let j = 0; j < 5; j++) {
+          const puffGeometry = new THREE.SphereGeometry(Math.random() * 10 + 10, 8, 8);
+          const puffMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
+          const puff = new THREE.Mesh(puffGeometry, puffMaterial);
+          puff.position.set((Math.random() - 0.5) * 20, (Math.random() - 0.5) * 5, (Math.random() - 0.5) * 20);
+          cloud.add(puff);
         }
+        cloud.position.set(
+          (Math.random() - 0.5) * 300,
+          Math.random() * GAME_HEIGHT - GAME_HEIGHT / 2,
+          (Math.random() - 0.5) * 300
+        );
+        clouds.push(cloud);
+        scene.add(cloud);
+      }
+    }
+
+    function setupControls() {
+      document.addEventListener("keydown", (e) => { keys[e.code] = true; });
+      document.addEventListener("keyup", (e) => { keys[e.code] = false; });
+    }
+
+    function setupDeviceOrientation() {
+      // Try iOS 13+ permission API first, but gracefully fall through
+      // if we're on HTTP (insecure context) or permission is denied.
+      if (
+        typeof DeviceOrientationEvent !== "undefined" &&
+        typeof DeviceOrientationEvent.requestPermission === "function" &&
+        window.isSecureContext
+      ) {
+        DeviceOrientationEvent.requestPermission()
+          .then((response) => {
+            if (response === "granted") enableOrientationControls();
+            startGame(); // start regardless — keyboard still works
+          })
+          .catch(() => {
+            // Permission denied or API threw — just start without tilt
+            startGame();
+          });
+      } else {
+        // Android, desktop, or HTTP — listen directly (no permission needed)
+        if (typeof DeviceOrientationEvent !== "undefined") {
+          enableOrientationControls();
+        }
+        startGame();
+      }
+    }
+
+    function enableOrientationControls() {
+      orientationSupported = true;
+      window.addEventListener("deviceorientation", (event) => {
+        deviceOrientation.beta = (event.beta || 0);
+        deviceOrientation.gamma = (event.gamma || 0);
+      });
+    }
+
+    async function startGame() {
+      document.getElementById("instructions").style.display = "none";
+      await unlockAudio();
+      gameStarted = true;
+      currentFallSpeed = FREEFALL_SPEED;
+      // Place player at the very top of the world
+      player.position.set(0, GAME_HEIGHT / 2, 0);
+      try { await bgMusic.play(); } catch (_) { }
+      await autoCalibrate();
+      animate();
+    }
+
+    function updatePlayer() {
+      if (!gameStarted) return;
+
+      let moveX = 0, moveZ = 0;
+
+      if (orientationSupported && calibrated) {
+        const mapped = mapTilts(deviceOrientation.beta, deviceOrientation.gamma);
+        const rawXdeg = mapped.x - baseline.x;
+        const rawZdeg = mapped.z - baseline.z;
+        const dzX = processTilt(rawXdeg, DEADZONE_DEG, 30);
+        const dzZ = processTilt(rawZdeg, DEADZONE_DEG, 30);
+        const targetX = Math.max(-MAX_MOVE, Math.min(MAX_MOVE, dzX * SENS_X));
+        const targetZ = Math.max(-MAX_MOVE, Math.min(MAX_MOVE, dzZ * SENS_Z));
+        smoothed.x += (targetX - smoothed.x) * SMOOTHING;
+        smoothed.z += (targetZ - smoothed.z) * SMOOTHING;
+        moveX = smoothed.x;
+        moveZ = smoothed.z;
       }
 
-      function createClouds() {
-        for (let i = 0; i < CLOUD_COUNT; i++) {
-          const cloud = new THREE.Group();
+      if (keys["ArrowLeft"] || keys["KeyA"]) moveX = -1;
+      if (keys["ArrowRight"] || keys["KeyD"]) moveX = 1;
+      if (keys["ArrowUp"] || keys["KeyW"]) moveZ = -1;
+      if (keys["ArrowDown"] || keys["KeyS"]) moveZ = 1;
 
-          // Create cloud puffs
-          for (let j = 0; j < 5; j++) {
-            const puffGeometry = new THREE.SphereGeometry(
-              Math.random() * 10 + 10,
-              8,
-              8
-            );
-            const puffMaterial = new THREE.MeshLambertMaterial({
-              color: 0xffffff,
-              transparent: true,
-              opacity: 0.7,
-            });
-            const puff = new THREE.Mesh(puffGeometry, puffMaterial);
+      if (chuteDeployed) {
+        // --- Canopy glide: inertia-based lateral movement ---
+        // Input accelerates velocity; drag bleeds it off when input releases
+        chuteVelX += moveX * CHUTE_ACCEL;
+        chuteVelZ += moveZ * CHUTE_ACCEL;
 
-            puff.position.set(
-              (Math.random() - 0.5) * 20,
-              (Math.random() - 0.5) * 5,
-              (Math.random() - 0.5) * 20
-            );
+        // Clamp to max glide speed
+        chuteVelX = Math.max(-CHUTE_MAX_SPEED, Math.min(CHUTE_MAX_SPEED, chuteVelX));
+        chuteVelZ = Math.max(-CHUTE_MAX_SPEED, Math.min(CHUTE_MAX_SPEED, chuteVelZ));
 
-            cloud.add(puff);
+        // Apply velocity then decay (drag simulates air resistance)
+        player.position.x += chuteVelX;
+        player.position.z += chuteVelZ;
+        chuteVelX *= CHUTE_DRAG;
+        chuteVelZ *= CHUTE_DRAG;
+
+        // Body hangs upright but leans gently into the turn direction
+        const leanX = -chuteVelX * CHUTE_BODY_LEAN;   // lean sideways with velocity
+        const leanZ = chuteVelZ * CHUTE_BODY_LEAN * 0.5; // slight forward/back tilt
+        player.rotation.z += (leanX - player.rotation.z) * 0.12;
+        player.rotation.x += (leanZ - player.rotation.x) * 0.12;
+
+        // Canopy tilts slightly in the opposite direction (it's being pulled aside)
+        if (chuteCanopy) {
+          chuteCanopy.rotation.z += (-chuteVelX * CHUTE_CANOPY_TILT - chuteCanopy.rotation.z) * 0.1;
+          chuteCanopy.rotation.x += (chuteVelZ * CHUTE_CANOPY_TILT * 0.5 - chuteCanopy.rotation.x) * 0.1;
+        }
+
+        // Blend toward seated harness pose
+        chutePoseBlend = Math.min(1, chutePoseBlend + 0.025);
+        const bp = chutePoseBlend;
+        const lerp = (a, b, t) => a + (b - a) * t;
+
+        if (player.userData && player.userData.parts) {
+          const { lShoulder, rShoulder, lHip, rHip, lKnee, rKnee, skydiver } = player.userData.parts;
+          const time = performance.now() * 0.001;
+
+          // ── Rotate the whole skydiver sub-group upright ──────────────────
+          // belly pose: rotation.x = PI/2. Seated upright: rotation.x = 0
+          if (skydiver) {
+            skydiver.rotation.x = lerp(Math.PI / 2, 0, bp);
+            // keep facing forward (z=PI in belly, 0 when upright feels natural)
+            skydiver.rotation.z = lerp(Math.PI, 0, bp);
           }
 
-          cloud.position.set(
-            (Math.random() - 0.5) * 300,
-            Math.random() * GAME_HEIGHT - GAME_HEIGHT / 2,
-            (Math.random() - 0.5) * 300
-          );
+          // ── Arms: reach up and slightly out to hold risers ────────────────
+          // Idle sway
+          const idleSwayL = Math.sin(time * 0.8) * 0.04;
+          const idleSwayR = Math.sin(time * 0.8 + Math.PI) * 0.04;
 
-          clouds.push(cloud);
-          scene.add(cloud);
-        }
-      }
+          // Toggle pull from steering input
+          const leftPull = Math.max(0, -chuteVelX) * 3.0;
+          const rightPull = Math.max(0, chuteVelX) * 3.0;
+          const fwdPull = Math.max(0, chuteVelZ) * 2.5;
 
-      function setupControls() {
-        // Keyboard controls
-        document.addEventListener("keydown", (event) => {
-          keys[event.code] = true;
-        });
+          // Seated riser pose: arms reach up-and-out (-X = up in local space after upright rotation)
+          const armUpL = lerp(0.35, -1.4, bp) + leftPull * 0.3 - fwdPull * 0.15 + idleSwayL;
+          const armUpR = lerp(0.35, -1.4, bp) + rightPull * 0.3 - fwdPull * 0.15 + idleSwayR;
+          lShoulder.rotation.x = armUpL;
+          rShoulder.rotation.x = armUpR;
+          // Arms flare slightly outward
+          lShoulder.rotation.z = lerp(0.95, 0.55, bp) + idleSwayL * 0.5;
+          rShoulder.rotation.z = lerp(-0.95, -0.55, bp) - idleSwayR * 0.5;
 
-        document.addEventListener("keyup", (event) => {
-          keys[event.code] = false;
-        });
-      }
-
-      function setupDeviceOrientation() {
-        if (
-          typeof DeviceOrientationEvent !== "undefined" &&
-          typeof DeviceOrientationEvent.requestPermission === "function"
-        ) {
-          // iOS 13+ permission request
-          DeviceOrientationEvent.requestPermission()
-            .then((response) => {
-              if (response == "granted") {
-                enableOrientationControls();
-                startGame();
-              }
-            })
-            .catch(console.error);
-        } else if (window.DeviceOrientationEvent) {
-          // Other devices
-          enableOrientationControls();
-          startGame();
-        }
-      }
-
-      function enableOrientationControls() {
-        orientationSupported = true;
-        window.addEventListener("deviceorientation", (event) => {
-          deviceOrientation.beta = (event.beta  || 0); // Front-to-back tilt (-180 to 180)
-          deviceOrientation.gamma = (event.gamma || 0); // Left-to-right tilt (-90 to 90)
-        });
-      }
-
-
-      async function startGame() {
-        document.getElementById("instructions").style.display = "none";
-        await unlockAudio();          // << crucial
-        gameStarted = true;
-        try { await bgMusic.play(); } catch (_) {}
-        await autoCalibrate();        // from previous fix
-        animate();
-      }
-
-
-      function updatePlayer() {
-        if (!gameStarted) return;
-
-        let moveX = 0;
-        let moveZ = 0;
-
-        // Device orientation controls (with calibration + smoothing)
-        if (orientationSupported && calibrated) {
-          // Map current raw to logical x/z based on screen orientation
-          const mapped = mapTilts(deviceOrientation.beta, deviceOrientation.gamma);
-
-          // If the user rotated the screen since calibration, still behave sensibly:
-          // Re-map baseline to *current* angle by just using stored neutral (x,z).
-          // (For best UX, ask them to hit "Recalibrate" after rotating; this fallback still works decently.)
-          const rawXdeg = mapped.x - baseline.x;
-          const rawZdeg = mapped.z - baseline.z;
-
-          // Deadzone + clamp
-          const dzX = processTilt(rawXdeg, DEADZONE_DEG, 30);
-          const dzZ = processTilt(rawZdeg, DEADZONE_DEG, 30);
-
-          // Scale degrees → movement unit
-          const targetX = Math.max(-MAX_MOVE, Math.min(MAX_MOVE, dzX * SENS_X));
-          const targetZ = Math.max(-MAX_MOVE, Math.min(MAX_MOVE, dzZ * SENS_Z));
-
-          // Smooth (exponential moving average)
-          smoothed.x += (targetX - smoothed.x) * SMOOTHING;
-          smoothed.z += (targetZ - smoothed.z) * SMOOTHING;
-
-          moveX = smoothed.x;
-          moveZ = smoothed.z;
+          // ── Legs: bent at hip (thighs forward/down), knees bent under ────
+          // In the upright skydiver frame: hip.rotation.x forward ~1.2rad, knee bent ~1.6rad
+          lHip.rotation.x = lerp(-0.10, 1.2, bp);   // thigh swings forward/down
+          rHip.rotation.x = lerp(-0.10, 1.2, bp);
+          lHip.rotation.z = lerp(0.35, 0.25, bp);   // legs stay slightly apart
+          rHip.rotation.z = lerp(-0.35, -0.25, bp);
+          lKnee.rotation.x = lerp(0.35, -1.6, bp);   // knees bent sharply back/under
+          rKnee.rotation.x = lerp(0.35, -1.6, bp);
         }
 
-        // Keyboard controls (override device orientation)
-        if (keys["ArrowLeft"] || keys["KeyA"]) moveX = -1;
-        if (keys["ArrowRight"] || keys["KeyD"]) moveX = 1;
-        if (keys["ArrowUp"] || keys["KeyW"]) moveZ = -1;
-        if (keys["ArrowDown"] || keys["KeyS"]) moveZ = 1;
+        // Camera: pull back and rise slightly when banking hard
+        const bankMag = Math.abs(chuteVelX);
+        const camOffsetY = 20 + bankMag * 4;
+        const camOffsetZ = 18 + bankMag * 3;
+        camera.position.x += (player.position.x - camera.position.x) * 0.08;
+        camera.position.y += (player.position.y + camOffsetY - camera.position.y) * 0.06;
+        camera.position.z += (player.position.z + camOffsetZ - camera.position.z) * 0.06;
 
-        // Apply movement
+      } else {
+        // --- Freefall: direct positional control ---
         player.position.x += moveX * 3;
         player.position.z += moveZ * 3;
-
-        // Keep player in bounds
-        player.position.x = Math.max(-300, Math.min(300, player.position.x));
-        player.position.z = Math.max(-300, Math.min(300, player.position.z));
-
-        // Continuous falling
-        player.position.y -= FALL_SPEED;
-        altitude = Math.max(0, altitude - FALL_SPEED * 5);
-
-        // Tilt player based on movement
         player.rotation.z = -moveX * 0.6;
         player.rotation.x = moveZ * 0.4;
 
-        // Update camera to follow player
         camera.position.x = player.position.x;
         camera.position.y = player.position.y + 10;
         camera.position.z = player.position.z + 5;
-        camera.lookAt(player.position.x, player.position.y, player.position.z);
-      
-        // --- Tracking pose blend (belly -> track) with subtle arm flutter ---
-        if (player.userData && player.userData.parts) {
-          const { lShoulder, rShoulder, lElbow, rElbow, lHip, rHip, lKnee, rKnee } = player.userData.parts;
+      }
 
-          // helpers
-          const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
-          const lerp = (a, b, t) => a + (b - a) * t;
-          const smoothstep = (e0, e1, x) => {
-            const t = clamp((x - e0) / (e1 - e0), 0, 1);
-            return t * t * (3 - 2 * t);
-          };
+      player.position.x = Math.max(-300, Math.min(300, player.position.x));
+      player.position.z = Math.max(-300, Math.min(300, player.position.z));
 
-          // input mapping
-          const forward = clamp(-moveZ, 0, 1);      // 0..1 only when pushing forward
-          const t = smoothstep(0.15, 0.9, forward); // blend belly→track
-          const bank = clamp(moveX, -1, 1);
+      player.position.y -= currentFallSpeed;
+      // Altitude is derived directly from world Y so they never drift apart
+      altitude = Math.max(0, (player.position.y - GROUND_Y) / GAME_HEIGHT * 17000);
 
-          // time-based flutter
-          const time = performance.now() * 0.004;
-          const flutterScale = 1 - 0.6 * t; // less flutter when tracking (sleeker body)
-          const A_shX = THREE.MathUtils.degToRad(4) * flutterScale; // shoulder pitch wobble
-          const A_shY = THREE.MathUtils.degToRad(2) * flutterScale; // tiny yaw wiggle
-          const A_elX = THREE.MathUtils.degToRad(5) * flutterScale; // elbow flex
+      camera.lookAt(player.position.x, player.position.y, player.position.z);
 
-          // Belly (base) vs Track (target) angles
-          const base = {
-            shX: 0.35,              // shoulders slightly forward
-            shZ: 0.95,              // arms wide
-            elX: THREE.MathUtils.degToRad(12),
-            elY: THREE.MathUtils.degToRad(10),
-            hipX: -0.10,
-            hipZ: 0.35,
-            kneeX: 0.35
-          };
-          const track = {
-            shX: -0.55,             // sweep arms back
-            shZ: 0.15,              // closer to body
-            elX: THREE.MathUtils.degToRad(0),   // straighter arms
-            elY: THREE.MathUtils.degToRad(0),
-            hipX: -0.25,            // slight hips-down
-            hipZ: 0.15,             // legs nearer midline
-            kneeX: 0.15             // straighter knees
-          };
+      // Limb animation (freefall only)
+      if (!chuteDeployed && player.userData && player.userData.parts) {
+        const { lShoulder, rShoulder, lElbow, rElbow, lHip, rHip, lKnee, rKnee } = player.userData.parts;
+        const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+        const lerp = (a, b, t) => a + (b - a) * t;
+        const smoothstep = (e0, e1, x) => { const t = clamp((x - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); };
+        const forward = clamp(-moveZ, 0, 1);
+        const t = smoothstep(0.15, 0.9, forward);
+        const bank = clamp(moveX, -1, 1);
+        const time = performance.now() * 0.004;
+        const flutterScale = 1 - 0.6 * t;
+        const A_shX = THREE.MathUtils.degToRad(4) * flutterScale;
+        const A_shY = THREE.MathUtils.degToRad(2) * flutterScale;
+        const A_elX = THREE.MathUtils.degToRad(5) * flutterScale;
+        const base = { shX: 0.35, shZ: 0.95, elX: THREE.MathUtils.degToRad(12), elY: THREE.MathUtils.degToRad(10), hipX: -0.10, hipZ: 0.35, kneeX: 0.35 };
+        const track = { shX: 0.55, shZ: -0.95, elX: 0, elY: 0, hipX: -0.25, hipZ: 0.15, kneeX: 1.55 };
 
-          function applySide(side, joints) {
-            const s = side; // +1 = left, -1 = right
-            const { shoulder, elbow, hip, knee } = joints;
+        function applySide(side, joints) {
+          const s = side;
+          const { shoulder, elbow, hip, knee } = joints;
+          shoulder.rotation.x = lerp(base.shX, track.shX, t);
+          shoulder.rotation.z = lerp(base.shZ * s, track.shZ * s, t) + (-bank) * 0.15 * s;
+          elbow.rotation.x = lerp(base.elX, track.elX, t);
+          elbow.rotation.y = lerp(base.elY * s, track.elY * s, t);
+          hip.rotation.x = lerp(base.hipX, track.hipX, t);
+          hip.rotation.z = lerp(base.hipZ * s, track.hipZ * s, t) + (-bank) * 0.15 * s;
+          knee.rotation.x = lerp(base.kneeX, track.kneeX, t);
+          const phase = time + (s > 0 ? 0 : Math.PI * 0.6);
+          shoulder.rotation.x += Math.sin(phase * 1.3) * A_shX;
+          shoulder.rotation.y = (Math.sin(phase * 1.7) * A_shY);
+          elbow.rotation.x += Math.sin(phase * 1.9) * A_elX;
+        }
 
-            // Blend pose first
-            shoulder.rotation.x = lerp(base.shX, track.shX, t);
-            shoulder.rotation.z = lerp(base.shZ * s, track.shZ * s, t) + (-bank) * 0.15 * s;
+        applySide(+1, { shoulder: lShoulder, elbow: lElbow, hip: lHip, knee: lKnee });
+        applySide(-1, { shoulder: rShoulder, elbow: rElbow, hip: rHip, knee: rKnee });
+      }
+    }
 
-            elbow.rotation.x = lerp(base.elX, track.elX, t);
-            elbow.rotation.y = lerp(base.elY * s, track.elY * s, t);
+    function updateOrbs() {
+      orbs.forEach((orb, index) => {
+        if (orb.userData.collected) return;
+        orb.rotation.y += orb.userData.rotationSpeed;
+        const pulse = Math.sin(Date.now() * 0.003 + index) * 0.1 + 0.9;
+        orb.scale.setScalar(pulse);
+        const distance = player.position.distanceTo(orb.position);
+        if (distance < 20) collectOrb(orb, index);
+      });
+    }
 
-            hip.rotation.x = lerp(base.hipX, track.hipX, t);
-            hip.rotation.z = lerp(base.hipZ * s, track.hipZ * s, t) + (-bank) * 0.15 * s;
-            knee.rotation.x = lerp(base.kneeX, track.kneeX, t);
+    function playFromPool(pool) {
+      let a = pool.find(x => x.paused || x.ended);
+      if (!a) { a = pool[0].cloneNode(); pool.push(a); }
+      try { a.currentTime = 0; const p = a.play(); if (p && typeof p.catch === "function") p.catch(() => { }); } catch (_) { }
+    }
 
-            // --- Add subtle flutter (freefall buffeting) ---
-            // Phase arms slightly out of sync for natural motion
-            const phase = time + (s > 0 ? 0 : Math.PI * 0.6);
+    function collectOrb(orb, index) {
+      orb.userData.collected = true;
+      score += orb.userData.points;
+      orbsCollectedCount++;
+      playFromPool(orbPool);
+      scene.remove(orb);
+      orbs.splice(index, 1);
+      createCollectionEffect(orb.position);
+      document.getElementById("score").textContent = score;
+    }
 
-            // Shoulders: tiny pitch + yaw wobble
-            shoulder.rotation.x += Math.sin(phase * 1.3) * A_shX;
-            shoulder.rotation.y = (Math.sin(phase * 1.7) * A_shY); // centered around ~0
+    function createCollectionEffect(position) {
+      const particles = new THREE.Group();
+      for (let i = 0; i < 10; i++) {
+        const particleGeometry = new THREE.SphereGeometry(5, 4, 4);
+        const particleMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color().setHSL(Math.random(), 1, 0.5) });
+        const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+        particle.position.copy(position);
+        particle.userData = { velocity: new THREE.Vector3((Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5) };
+        particles.add(particle);
+      }
+      scene.add(particles);
+      let particleLife = 30;
+      const animateParticles = () => {
+        if (particleLife <= 0) { scene.remove(particles); return; }
+        particles.children.forEach((p) => { p.position.add(p.userData.velocity); p.userData.velocity.multiplyScalar(0.95); p.material.opacity = particleLife / 30; });
+        particleLife--;
+        requestAnimationFrame(animateParticles);
+      };
+      animateParticles();
+    }
 
-            // Elbows: gentle flex
-            elbow.rotation.x += Math.sin(phase * 1.9) * A_elX;
-          }
+    function updateUI() {
+      const altPct = altitude / GAME_HEIGHT;
+      document.getElementById("altFill").style.height = (altPct * 100) + "%";
 
-          applySide(+1, { shoulder: lShoulder, elbow: lElbow, hip: lHip, knee: lKnee });
-          applySide(-1, { shoulder: rShoulder, elbow: rElbow, hip: rHip, knee: rKnee });
+      // Speed display (freefall vs chute)
+      const displaySpeed = chuteDeployed
+        ? Math.floor(20 + Math.random() * 5)
+        : Math.floor(speed + Math.random() * 10);
+      document.getElementById("speed").textContent = displaySpeed;
+      document.getElementById("altitudeValue").textContent = Math.floor(altitude);
+
+      // Show chute button below deploy altitude
+      const chuteBtnWrap = document.getElementById("chuteBtnWrap");
+      if (altitude <= CHUTE_DEPLOY_ALT && !chuteDeployed) {
+        chuteBtnWrap.style.display = "block";
+      } else if (chuteDeployed) {
+        chuteBtnWrap.style.display = "block"; // keep visible to show status
+      }
+
+      // Warning flash
+      const warn = document.getElementById("altWarning");
+      if (altitude <= CHUTE_WARN_ALT && !chuteDeployed) {
+        warn.style.display = "block";
+      } else {
+        warn.style.display = "none";
+      }
+
+      if (player.position.y <= GROUND_Y) endGame();
+    }
+
+    async function endGame() {
+      gameStarted = false;
+
+      // Determine landing quality
+      let landingBonus = 0;
+      let landingTitle = "";
+      let landingEmoji = "";
+      let bonusDesc = "";
+
+      if (chuteDeployed) {
+        // Score based on distance from landing zone center
+        const dx = landingZone ? (landingZone.x - player.position.x) : 999;
+        const dz = landingZone ? (landingZone.z - player.position.z) : 999;
+        const dist = Math.sqrt(dx * dx + dz * dz);
+
+        if (dist < 12) {
+          landingBonus = 1000;
+          landingTitle = "Bullseye!";
+          landingEmoji = "\uD83C\uDFAF";
+          bonusDesc = "Bullseye bonus: +1000 pts";
+        } else if (dist < 25) {
+          landingBonus = 600;
+          landingTitle = "Inner ring!";
+          landingEmoji = "\uD83D\uDFE0";
+          bonusDesc = "Inner ring: +600 pts (" + Math.round(dist) + "m off)";
+        } else if (dist < 40) {
+          landingBonus = 300;
+          landingTitle = "Outer ring";
+          landingEmoji = "\uD83D\uDFE1";
+          bonusDesc = "Outer ring: +300 pts (" + Math.round(dist) + "m off)";
+        } else {
+          landingBonus = 50;
+          landingTitle = "Missed the target";
+          landingEmoji = "\u2753";
+          bonusDesc = "Missed target: +50 pts (" + Math.round(dist) + "m off)";
+        }
+      } else {
+        // Hard landing — no chute
+        landingBonus = -200;
+        landingTitle = "Hard Landing!";
+        landingEmoji = "\uD83D\uDCA5";
+        bonusDesc = "No chute penalty: -200 pts";
+      }
+
+      score = Math.max(0, score + landingBonus);
+
+      document.getElementById("gameOverTitle").textContent = chuteDeployed ? "Mission Complete!" : "Crash Landing!";
+      document.getElementById("landingResult").textContent = landingEmoji + " " + landingTitle;
+      document.getElementById("bonusText").textContent = bonusDesc;
+      document.getElementById("finalScore").textContent = score;
+      document.getElementById("orbsCollected").textContent = orbsCollectedCount;
+      document.getElementById("gameOver").style.display = "block";
+      document.getElementById("chuteBtnWrap").style.display = "none";
+      document.getElementById("lzHud").style.display = "none";
+      windIntensity = 0;
+      const wc = document.getElementById("windCanvas");
+      if (wc) { const c = wc.getContext("2d"); c && c.clearRect(0, 0, wc.width, wc.height); }
+
+      try {
+        chuteSound.currentTime = 0;
+        chuteSound.pause();
+        bgMusic.currentTime = 0;
+        bgMusic.pause();
+        finishSound.currentTime = 0;
+        await finishSound.play();
+      } catch (_) { }
+    }
+
+    function restartGame() {
+      score = 0;
+      altitude = 17000;  // will be overwritten by derived calc once game starts
+      orbsCollectedCount = 0;
+      gameStarted = false;
+      chuteDeployed = false;
+      chuteOpening = false;
+      chuteOpenProgress = 0;
+      chutePoseBlend = 0;
+      currentFallSpeed = FREEFALL_SPEED;
+      chuteVelX = 0;
+      chuteVelZ = 0;
+
+      if (chuteCanopy) { player.remove(chuteCanopy); chuteCanopy = null; }
+
+      // Reset arm pose
+      if (player.userData && player.userData.parts) {
+        const { lShoulder, rShoulder } = player.userData.parts;
+        lShoulder.rotation.x = 0.35;
+        lShoulder.rotation.z = 0.95;
+        rShoulder.rotation.x = 0.35;
+        rShoulder.rotation.z = -0.95;
+        // Reset skydiver sub-group to belly-to-earth
+        if (player.userData.parts.skydiver) {
+          player.userData.parts.skydiver.rotation.x = Math.PI / 2;
+          player.userData.parts.skydiver.rotation.z = Math.PI;
         }
       }
 
-      function updateOrbs() {
-        orbs.forEach((orb, index) => {
-          if (orb.userData.collected) return;
+      player.position.set(0, GAME_HEIGHT / 2, 0);
+      player.rotation.set(0, 0, 0);
 
-          // Rotate orb
-          orb.rotation.y += orb.userData.rotationSpeed;
+      orbs.forEach((orb) => scene.remove(orb));
+      orbs = [];
+      createOrbs();
+      createLandingZone();
 
-          // Pulsing effect
-          const pulse = Math.sin(Date.now() * 0.003 + index) * 0.1 + 0.9;
-          orb.scale.setScalar(pulse);
+      document.getElementById("gameOver").style.display = "none";
+      document.getElementById("instructions").style.display = "block";
+      document.getElementById("chuteBtnWrap").style.display = "none";
+      document.getElementById("lzHud").style.display = "none";
+      document.getElementById("altWarning").style.display = "none";
 
-          // Check collision with player
-          const distance = player.position.distanceTo(orb.position);
-          if (distance < 20) {
-            collectOrb(orb, index);
-          }
-        });
+      const btn = document.getElementById("chuteBtn");
+      btn.textContent = "🪂 DEPLOY CHUTE";
+      btn.classList.remove("deployed");
+      btn.disabled = false;
+      document.getElementById("chuteHint").textContent = "Deploy before hitting ground!";
+
+      document.getElementById("score").textContent = 0;
+      document.getElementById("altFill").style.height = "100%";
+    }
+
+
+    function updateLandingZoneIndicator() {
+      if (!landingZone || !chuteDeployed) {
+        document.getElementById("lzHud").style.display = "none";
+        return;
       }
+      document.getElementById("lzHud").style.display = "block";
 
-      function playFromPool(pool) {
-        let a = pool.find(x => x.paused || x.ended);
-        if (!a) {
-          // optional: grow the pool if all are busy
-          a = pool[0].cloneNode();
-          pool.push(a);
-        }
-        try {
-          a.currentTime = 0;
-          const p = a.play();
-          if (p && typeof p.catch === "function") p.catch(() => {});
-        } catch (_) {}
-      }
+      // Horizontal distance to LZ
+      const dx = landingZone.x - player.position.x;
+      const dz = landingZone.z - player.position.z;
+      const dist = Math.sqrt(dx * dx + dz * dz);
 
+      document.getElementById("lzDist").textContent = "LZ: " + Math.round(dist) + "m";
 
-      function collectOrb(orb, index) {
-        orb.userData.collected = true;
-        score += orb.userData.points;
-        orbsCollectedCount++;
+      // Rotate arrow to point toward LZ (relative to camera facing -Z)
+      // atan2(dx, -dz) gives angle from camera-forward to target
+      const angleDeg = Math.atan2(dx, -dz) * (180 / Math.PI);
+      document.getElementById("lzArrow").style.transform = "rotate(" + angleDeg + "deg)";
 
-        playFromPool(orbPool); // instead of orbSound.play()
+      // Color-code arrow by distance
+      const arrowEl = document.getElementById("lzArrow");
+      if (dist < 15) arrowEl.style.color = "#00ff88";   // on target
+      else if (dist < 40) arrowEl.style.color = "#ffcc00";   // close
+      else arrowEl.style.color = "#ffffff";   // far
+    }
 
-        scene.remove(orb);
-        orbs.splice(index, 1);
-        createCollectionEffect(orb.position);
-        document.getElementById("score").textContent = score;
-      }
+    function animate() {
+      if (!gameStarted) return;
+      requestAnimationFrame(animate);
+      updatePlayer();
+      updateChuteAnimation();
+      updateOrbs();
+      updateUI();
+      updateLandingZoneIndicator();
+      updateWindLines();
+      renderer.render(scene, camera);
+    }
 
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
 
-      function createCollectionEffect(position) {
-        const particles = new THREE.Group();
+    init();
+  </script>
+</body>
 
-        for (let i = 0; i < 10; i++) {
-          const particleGeometry = new THREE.SphereGeometry(5, 4, 4);
-          const particleMaterial = new THREE.MeshBasicMaterial({
-            color: new THREE.Color().setHSL(Math.random(), 1, 0.5),
-          });
-          const particle = new THREE.Mesh(particleGeometry, particleMaterial);
-
-          particle.position.copy(position);
-          particle.userData = {
-            velocity: new THREE.Vector3(
-              (Math.random() - 0.5) * 5,
-              (Math.random() - 0.5) * 5,
-              (Math.random() - 0.5) * 5
-            ),
-          };
-
-          particles.add(particle);
-        }
-
-        scene.add(particles);
-
-        // Animate particles
-        let particleLife = 30;
-        const animateParticles = () => {
-          if (particleLife <= 0) {
-            scene.remove(particles);
-            return;
-          }
-
-          particles.children.forEach((particle) => {
-            particle.position.add(particle.userData.velocity);
-            particle.userData.velocity.multiplyScalar(0.95);
-            particle.material.opacity = particleLife / 30;
-          });
-
-          particleLife--;
-          requestAnimationFrame(animateParticles);
-        };
-
-        animateParticles();
-      }
-
-      function updateUI() {
-        document.getElementById("speed").textContent = Math.floor(
-          speed + Math.random() * 10
-        );
-        document.getElementById("altitudeValue").textContent =
-          Math.floor(altitude);
-
-        // Check game end condition
-        if (altitude <= 0) {
-          endGame();
-        }
-      }
-
-      async function endGame() {
-        gameStarted = false;
-        document.getElementById("finalScore").textContent = score;
-        document.getElementById("orbsCollected").textContent = orbsCollectedCount;
-        document.getElementById("gameOver").style.display = "block";
-
-        try { bgMusic.pause(); } catch(_) {}
-        try {
-          finishSound.currentTime = 0;
-          await finishSound.play();
-        } catch(_) {}
-      }
-
-      function restartGame() {
-        // Reset game state
-        score = 0;
-        altitude = 17000;
-        orbsCollectedCount = 0;
-        gameStarted = false;
-
-        // Reset player position
-        player.position.set(0, 0, 0);
-
-        // Clear and recreate orbs
-        orbs.forEach((orb) => scene.remove(orb));
-        orbs = [];
-        createOrbs();
-
-        // Hide game over screen
-        document.getElementById("gameOver").style.display = "none";
-
-        // Show instructions again
-        document.getElementById("instructions").style.display = "block";
-
-        // Update UI
-        document.getElementById("score").textContent = score;
-      }
-
-      function animate() {
-        if (!gameStarted) return;
-
-        requestAnimationFrame(animate);
-
-        updatePlayer();
-        updateOrbs();
-        updateUI();
-
-        renderer.render(scene, camera);
-      }
-
-      function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      }
-
-      // Initialize the game
-      init();
-    </script>
-
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js').catch(console.error);
-        });
-      }
-    </script>
-
-  </body>
 </html>
